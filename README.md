@@ -25,9 +25,6 @@ One could also implement authentication in the future, to split access between
 ```
 ### To be implemented
 ```
-Search query:
-/books/search?author=...&title=...&available=...
-
 Administration:
 POST, DELETE, PUT to /books, /books/{id}
 POST, DELETE, PUT to /users, /users/{id}
