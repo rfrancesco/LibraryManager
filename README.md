@@ -50,6 +50,10 @@ Output:
 ```
 ### To be implemented
 ```
+Proper error checking:
+- [ ] Check for bookId, userId and return NotFound() if not found
+- [ ] Return Ok() in all other cases
+
 Administration:
 POST, DELETE, PUT to /books, /books/{id}
 POST, DELETE, PUT to /users, /users/{id}
