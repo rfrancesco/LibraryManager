@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManager
@@ -16,19 +17,24 @@ namespace LibraryManager
                 DbInitializer.InitializeIfEmpty(dbContext);
             }
 
-            app.MapGet("/books", (AppDbContext dbContext, string? title, string? author, string? genre, bool? available) =>
+            app.MapGet("/books", (AppDbContext dbContext, [AsParameters] BookQuery query) =>
             {
-                var query = dbContext.Books.AsQueryable();
-                if (title != null)
-                    query = query.Where(b => b.Title.ToLower().Contains(title.ToLower()));
-                if (author != null)
-                    query = query.Where(b => b.Author.ToLower().Contains(author.ToLower()));
-                if (genre != null)
-                    query = query.Where(b => b.Genre.ToLower().Contains(genre.ToLower()));
-                if (available != null)
-                    query = query.Where(b => (b.BorrowedByUserId == null) == available);
+                var page = query.Page == null ? 1 : query.Page.Value;
+                var pageSize = query.PageSize == null ? BookQuery.DefaultPageSize : query.PageSize.Value;
+                Console.WriteLine($"{page}, {pageSize}, {query.Title}, {query.Author}, {query.Genre}, {query.Available}");
+                var bookQuery = dbContext.Books.AsQueryable();
+                if (query.Title != null)
+                    bookQuery = bookQuery.Where(b => b.Title.ToLower().Contains(query.Title.ToLower()));
+                if (query.Author != null)
+                    bookQuery = bookQuery.Where(b => b.Author.ToLower().Contains(query.Author.ToLower()));
+                if (query.Genre != null)
+                    bookQuery = bookQuery.Where(b => b.Genre.ToLower().Contains(query.Genre.ToLower()));
+                if (query.Available != null)
+                    bookQuery = bookQuery.Where(b => (b.BorrowedByUserId == null) == query.Available);
 
-                return query
+                return bookQuery
+                        .Skip((page - 1) * pageSize)
+                        .Take(pageSize)
                         // Public version:
                         //.Select(b => b.Id, b.Title, b.Author, b.Genre, available = b.BorrowedByUserId == null)
                         // Admin version:
@@ -45,7 +51,7 @@ namespace LibraryManager
                         .ToList();
             });
 
-            _ = app.MapGet("/books/{id}", (int id, AppDbContext dbContext) => dbContext.Books
+            app.MapGet("/books/{id}", (int id, AppDbContext dbContext) => dbContext.Books
                                         .Where(b => b.Id == id)
                                         .Select(b => new
                                         {
