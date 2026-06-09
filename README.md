@@ -17,8 +17,21 @@ One could also implement authentication in the future, to split access between
 
 ### Implemented
 ```
-/books
-    query parameters: title, author, genre (substring case-insensitive match), available (bool), pagination (page, pageSize)
+BookQuery: 
+    title, author, genre, available (bool), pagination (page, pageSize)
+    all parameters are optional and matched case-insensitively by substring
+
+GET /books
+    Search through all books (in: BookQuery, out: List<Book>)
+GET /authors, /genres
+    Search through the list of authors or genres (in: BookQuery, out: List<Author>, List<Genre>). Only unique values are returned.
+
+(Some queries are admittedly a bit ridiculous, but the requirements are just an excuse to gain experience)
+
+Examples:
+GET /authors?author=ley
+Output:
+[{"author":"Aldous Huxley"},{"author":"Mary Shelley"}]
 
 /users
 /users/{id}
