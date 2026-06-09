@@ -32,16 +32,36 @@ namespace LibraryManager
                         // Public version:
                         //.Select(b => b.Id, b.Title, b.Author, b.Genre, available = b.BorrowedByUserId == null)
                         // Admin version:
-                        .Select(b => new { b.Id, b.Title, b.Author, b.Genre, available = b.BorrowedByUserId == null, 
-                                b.BorrowedByUserId, BorrowedBy = b.BorrowedBy != null ? b.BorrowedBy.Name : null})
+                        .Select(b => new
+                        {
+                            b.Id,
+                            b.Title,
+                            b.Author,
+                            b.Genre,
+                            available = b.BorrowedByUserId == null,
+                            b.BorrowedByUserId,
+                            BorrowedBy = b.BorrowedBy != null ? b.BorrowedBy.Name : null
+                        })
                         .ToList();
             });
 
-            app.MapGet("/books/{id}", (int id, AppDbContext dbContext) => dbContext.Books.Find(id));
+            _ = app.MapGet("/books/{id}", (int id, AppDbContext dbContext) => dbContext.Books
+                                        .Where(b => b.Id == id)
+                                        .Select(b => new
+                                        {
+                                            b.Id,
+                                            b.Title,
+                                            b.Author,
+                                            b.Genre,
+                                            available = b.BorrowedByUserId == null,
+                                            b.BorrowedByUserId,
+                                            BorrowedBy = b.BorrowedBy != null ? b.BorrowedBy.Name : null
+                                        })
+                                        .FirstOrDefault());
 
             app.MapGet("/users", (AppDbContext dbContext) => dbContext.Users.ToList());
             app.MapGet("/users/{id}", (int id, AppDbContext dbContext) => dbContext.Users.Include(u => u.Books).FirstOrDefault(u => u.UserId == id));
-            
+
 
             app.Run();
         }
