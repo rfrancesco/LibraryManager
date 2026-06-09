@@ -33,8 +33,12 @@ GET /authors?author=ley
 Output:
 [{"author":"Aldous Huxley"},{"author":"Mary Shelley"}]
 
-/users
-/users/{id}
+GET /users 
+    Get list of all users
+GET /users/{id}
+    Get user data
+GET /users/{id}/books(?page=...&pageSize=...)
+    Get borrowed books by user {id}
 ```
 ### To be implemented
 ```

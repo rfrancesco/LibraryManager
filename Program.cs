@@ -117,9 +117,41 @@ namespace LibraryManager
                         .ToList();
             });
 
-            app.MapGet("/users", (AppDbContext dbContext) => dbContext.Users.ToList());
-            app.MapGet("/users/{id}", (int id, AppDbContext dbContext) => dbContext.Users.Include(u => u.Books).FirstOrDefault(u => u.UserId == id));
+            app.MapGet("/users", (AppDbContext dbContext, [AsParameters] BaseQuery query) =>
+            {
+                var page = query.Page == null ? 1 : query.Page.Value;
+                var pageSize = query.PageSize == null ? BaseQuery.DefaultPageSize : query.PageSize.Value;
+                return dbContext.Users
+                        .Select(u => new { u.UserId, u.Name })
+                        .Skip((page - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+            });
+            app.MapGet("/users/{id}", (int id, AppDbContext dbContext) =>
+            {
+                return dbContext.Users.Include(u => u.Books).Select(u => new
+                {
+                    u.UserId,
+                    u.Name
+                    //Books = u.Books.Select(b => new { b.Id, b.Title, b.Author, b.Genre })
+                }).FirstOrDefault(u => u.UserId == id);
+            }
+                );
 
+            app.MapGet("/users/{id}/books", (int id, AppDbContext dbContext, [AsParameters] BaseQuery query) =>
+            {
+                var page = query.Page == null ? 1 : query.Page.Value;
+                var pageSize = query.PageSize == null ? BaseQuery.DefaultPageSize : query.PageSize.Value;
+                return dbContext.Books.Where(b => b.BorrowedByUserId == id).Select(b => new
+                {
+                    b.Id,
+                    b.Title,
+                    b.Author,
+                    b.Genre
+                }).Skip((page - 1) * pageSize)
+                  .Take(pageSize)
+                  .ToList();
+            });
 
             app.Run();
         }
