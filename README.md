@@ -18,7 +18,7 @@ One could also implement authentication in the future, to split access between
 ### Implemented
 ```
 /books
-    query parameters: title, author, genre (substring case-insensitive match), available (bool)
+    query parameters: title, author, genre (substring case-insensitive match), available (bool), pagination (page, pageSize)
 
 /users
 /users/{id}
@@ -28,6 +28,4 @@ One could also implement authentication in the future, to split access between
 Administration:
 POST, DELETE, PUT to /books, /books/{id}
 POST, DELETE, PUT to /users, /users/{id}
-
-Pagination for GET requests (imagine receiving a JSON with 1000 books...)
 ```
