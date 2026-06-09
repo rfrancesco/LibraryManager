@@ -16,9 +16,26 @@ namespace LibraryManager
                 DbInitializer.InitializeIfEmpty(dbContext);
             }
 
-            app.MapGet("/books", (AppDbContext dbContext) => dbContext.Books.Select(b => new {b.Id, b.Author, b.Title, b.Genre, Available = b.BorrowedByUserId == null}));
-            app.MapGet("/books/borrowed", (AppDbContext dbContext) => dbContext.Books.Where(b => b.BorrowedByUserId != null).Select(b => new {b.Id, b.Author, b.Title, b.Genre, Available = b.BorrowedByUserId == null}));
-            app.MapGet("/books/available", (AppDbContext dbContext) => dbContext.Books.Where(b => b.BorrowedByUserId == null).Select(b => new {b.Id, b.Author, b.Title, b.Genre, Available = b.BorrowedByUserId == null}));
+            app.MapGet("/books", (AppDbContext dbContext, string? title, string? author, string? genre, bool? available) =>
+            {
+                var query = dbContext.Books.AsQueryable();
+                if (title != null)
+                    query = query.Where(b => b.Title.ToLower().Contains(title.ToLower()));
+                if (author != null)
+                    query = query.Where(b => b.Author.ToLower().Contains(author.ToLower()));
+                if (genre != null)
+                    query = query.Where(b => b.Genre.ToLower().Contains(genre.ToLower()));
+                if (available != null)
+                    query = query.Where(b => (b.BorrowedByUserId == null) == available);
+
+                return query
+                        // Public version:
+                        //.Select(b => b.Id, b.Title, b.Author, b.Genre, available = b.BorrowedByUserId == null)
+                        // Admin version:
+                        .Select(b => new { b.Id, b.Title, b.Author, b.Genre, available = b.BorrowedByUserId == null, 
+                                b.BorrowedByUserId, BorrowedBy = b.BorrowedBy != null ? b.BorrowedBy.Name : null})
+                        .ToList();
+            });
 
             app.MapGet("/books/{id}", (int id, AppDbContext dbContext) => dbContext.Books.Find(id));
 

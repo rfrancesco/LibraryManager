@@ -18,8 +18,7 @@ One could also implement authentication in the future, to split access between
 ### Implemented
 ```
 /books
-/books/available
-/books/borrowed
+    query parameters: title, author, genre (substring case-insensitive match), available (bool)
 
 /users
 /users/{id}
