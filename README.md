@@ -33,12 +33,20 @@ GET /authors?author=ley
 Output:
 [{"author":"Aldous Huxley"},{"author":"Mary Shelley"}]
 
+UserQuery:
+    name (matched case-insensitively by substring)
+
 GET /users 
     Get list of all users
 GET /users/{id}
     Get user data
 GET /users/{id}/books(?page=...&pageSize=...)
     Get borrowed books by user {id}
+
+Examples:
+GET /users?name=e
+Output:
+[{"userId":1,"name":"Alice"},{"userId":3,"name":"Charlie"},{"userId":5,"name":"Eve"}]
 ```
 ### To be implemented
 ```

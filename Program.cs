@@ -117,11 +117,14 @@ namespace LibraryManager
                         .ToList();
             });
 
-            app.MapGet("/users", (AppDbContext dbContext, [AsParameters] BaseQuery query) =>
+            app.MapGet("/users", (AppDbContext dbContext, [AsParameters] UserQuery query) =>
             {
                 var page = query.Page == null ? 1 : query.Page.Value;
-                var pageSize = query.PageSize == null ? BaseQuery.DefaultPageSize : query.PageSize.Value;
-                return dbContext.Users
+                var pageSize = query.PageSize == null ? UserQuery.DefaultPageSize : query.PageSize.Value;
+                var userQuery = dbContext.Users.AsQueryable();
+                if (query.Name != null)
+                    userQuery = userQuery.Where(u => u.Name.ToLower().Contains(query.Name.ToLower()));
+                return userQuery
                         .Select(u => new { u.UserId, u.Name })
                         .Skip((page - 1) * pageSize)
                         .Take(pageSize)
