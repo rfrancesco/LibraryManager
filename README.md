@@ -17,7 +17,7 @@ One could also implement authentication and role-based authorization in the futu
 This could be more or less fine-grained.
 
 For now, there is no log of loans and loan data is stored directly in the book record.
-This is not ideal (separation of concerns!). Todo: add a Loan table, which acts as a junction table between users and loans.
+This is not ideal (separation of concerns!). Todo: add a Loan table, which acts as a transaction table linking users and books.
 Then, add endpoints to query active and expired loans.
 
 ### Implemented
