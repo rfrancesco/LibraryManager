@@ -1,10 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace LibraryManager
 {
     public class GenresEndpoint
     {
         public static void Map(WebApplication app)
         {
-            app.MapGet("/genres", (AppDbContext dbContext, [AsParameters] BookQuery query) =>
+            app.MapGet("/genres", async (AppDbContext dbContext, [AsParameters] BookQuery query) =>
             {
                 var page = query.Page == null ? 1 : query.Page.Value;
                 var pageSize = query.PageSize == null ? BookQuery.DefaultPageSize : query.PageSize.Value;
@@ -19,15 +21,14 @@ namespace LibraryManager
                 if (query.Available != null)
                     bookQuery = bookQuery.Where(b => (b.BorrowedByUserId == null) == query.Available);
 
-                return Results.Ok(bookQuery
-                        .Select(b => new
-                        {
-                            b.Genre,
-                        })
+                var result = await bookQuery
+                        .Select(b => b.Genre)
                         .Distinct()
                         .Skip((page - 1) * pageSize)
                         .Take(pageSize)
-                        .ToList());
+                        .ToListAsync();
+
+                return TypedResults.Ok(result);
             });
         }
     }

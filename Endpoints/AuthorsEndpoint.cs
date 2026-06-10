@@ -1,10 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace LibraryManager
 {
     public class AuthorsEndpoint
     {
         public static void Map(WebApplication app)
         {
-            app.MapGet("/authors", (AppDbContext dbContext, [AsParameters] BookQuery query) =>
+            app.MapGet("/authors", async (AppDbContext dbContext, [AsParameters] BookQuery query) =>
                         {
                             var page = query.Page == null ? 1 : query.Page.Value;
                             var pageSize = query.PageSize == null ? BookQuery.DefaultPageSize : query.PageSize.Value;
@@ -19,15 +21,14 @@ namespace LibraryManager
                             if (query.Available != null)
                                 bookQuery = bookQuery.Where(b => (b.BorrowedByUserId == null) == query.Available);
 
-                            return bookQuery
-                                    .Select(b => new
-                                    {
-                                        b.Author,
-                                    })
+                            var result = await bookQuery
+                                    .Select(b => b.Author)
                                     .Distinct()
                                     .Skip((page - 1) * pageSize)
                                     .Take(pageSize)
-                                    .ToList();
+                                    .ToListAsync();
+
+                            return TypedResults.Ok(result);
                         });
 
         }
