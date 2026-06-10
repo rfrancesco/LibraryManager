@@ -7,7 +7,7 @@ Simple library manager backend using ASP.NET Core, implementing
 
 The project is still barebones and in implementation.
 
-### Assumptions
+### Assumptions and future TODOs
 It is for now assumed that the backend is protected by external access, and only accessed by the library management frontend by employees, who have total admin rights (!!!).
 
 One could also implement authentication and role-based authorization in the future, to split access between
@@ -16,9 +16,11 @@ One could also implement authentication and role-based authorization in the futu
 - Library user (view own user, list borrowed books)
 This could be more or less fine-grained.
 
-For now, there is no log of loans and loan data is stored directly in the book record.
+- For now, there is no log of loans and loan data is stored directly in the book record.
 This is not ideal (separation of concerns!). Todo: add a Loan table, which acts as a transaction table linking users and books.
 Then, add endpoints to query active and expired loans.
+
+- Another thing to do is better separate concerns (the request delegates include business logic - separate it into a service!)
 
 ### Implemented
 ```
