@@ -13,14 +13,14 @@ namespace LibraryManager
             builder.Services.AddSwaggerGen();
             var app = builder.Build();
 
-            using (var scope = app.Services.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                DbInitializer.InitializeIfEmpty(dbContext);
-            }
-
             if (app.Environment.IsDevelopment())
             {
+                using (var scope = app.Services.CreateScope())
+                {
+                    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    DbInitializer.InitializeIfEmpty(dbContext);
+                }
+
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
