@@ -1,8 +1,9 @@
 # LibraryManager
 
 Simple library manager backend using ASP.NET Core, implementing 
-- REST API for listing books
+- REST API for listing and managing books
 - REST API for listing users
+- (todo) REST API for listing and managing loans
 - Users and Books managed with the Entity Framework, stored in SQLite
 
 The project is still barebones and in implementation.
@@ -15,10 +16,6 @@ One could also implement authentication and role-based authorization in the futu
 - Public interface (list books, view books without user information, only available=yes/no)
 - Library user (view own user, list borrowed books)
 This could be more or less fine-grained.
-
-- For now, there is no log of loans and loan data is stored directly in the book record.
-This is not ideal (separation of concerns!). Todo: add a Loan table, which acts as a transaction table linking users and books.
-Then, add endpoints to query active and expired loans.
 
 - Another thing to do is better separate concerns (the request delegates include business logic - separate it into a service!)
 
