@@ -19,7 +19,7 @@ namespace LibraryManager
                 if (query.Genre != null)
                     bookQuery = bookQuery.Where(b => b.Genre.ToLower().Contains(query.Genre.ToLower()));
                 if (query.Available != null)
-                    bookQuery = bookQuery.Where(b => (b.BorrowedByUserId == null) == query.Available);
+                    bookQuery = bookQuery.Where(b => (!b.Loans.Any(l => l.ReturnDate == null)) == query.Available);
 
                 return Results.Ok(bookQuery
                         // Public version:
@@ -31,9 +31,9 @@ namespace LibraryManager
                             b.Title,
                             b.Author,
                             b.Genre,
-                            available = b.BorrowedByUserId == null,
-                            b.BorrowedByUserId,
-                            BorrowedBy = b.BorrowedBy != null ? b.BorrowedBy.Name : null
+                            available = !(b.Loans.Any(l => l.ReturnDate == null)),
+                            // b.BorrowedByUserId,
+                            // BorrowedBy = b.BorrowedBy != null ? b.BorrowedBy.Name : null
                         })
                         .Skip((page - 1) * pageSize)
                         .Take(pageSize)
@@ -48,9 +48,9 @@ namespace LibraryManager
                                             b.Title,
                                             b.Author,
                                             b.Genre,
-                                            available = b.BorrowedByUserId == null,
-                                            b.BorrowedByUserId,
-                                            BorrowedBy = b.BorrowedBy != null ? b.BorrowedBy.Name : null
+                                            available = !(b.Loans.Any(l => l.ReturnDate == null)),
+                                            // b.BorrowedByUserId,
+                                            // BorrowedBy = b.BorrowedBy != null ? b.BorrowedBy.Name : null
                                         })
                                         .FirstOrDefault()));
         }

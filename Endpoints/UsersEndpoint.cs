@@ -42,7 +42,7 @@ namespace LibraryManager
             {
                 var page = query.Page == null ? 1 : query.Page.Value;
                 var pageSize = query.PageSize == null ? BaseQueryDto.DefaultPageSize : query.PageSize.Value;
-                return dbContext.Books.Where(b => b.BorrowedByUserId == id).Select(b => new
+                return dbContext.Books.Where(b => (b.Loans.Any(l => l.UserId == id && l.ReturnDate == null))).Select(b => new
                 {
                     b.Id,
                     b.Title,
@@ -52,7 +52,6 @@ namespace LibraryManager
                   .Take(pageSize)
                   .ToList();
             });
-
         }
     }
 }
