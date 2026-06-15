@@ -1,13 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace LibraryManager
 {
     public class UsersEndpoint
     {
         public static void Map(WebApplication app)
         {
-            app.MapGet("/users", (AppDbContext dbContext, [AsParameters] UserQuery query) =>
+            app.MapGet("/users", (AppDbContext dbContext, [AsParameters] UserQueryDto query) =>
             {
                 var page = query.Page == null ? 1 : query.Page.Value;
-                var pageSize = query.PageSize == null ? UserQuery.DefaultPageSize : query.PageSize.Value;
+                var pageSize = query.PageSize == null ? UserQueryDto.DefaultPageSize : query.PageSize.Value;
                 var userQuery = dbContext.Users.AsQueryable();
                 if (query.Name != null)
                     userQuery = userQuery.Where(u => u.Name.ToLower().Contains(query.Name.ToLower()));
@@ -36,10 +38,10 @@ namespace LibraryManager
                 }
             });
 
-            app.MapGet("/users/{id}/books", (int id, AppDbContext dbContext, [AsParameters] BaseQuery query) =>
+            app.MapGet("/users/{id}/books", (int id, AppDbContext dbContext, [AsParameters] BaseQueryDto query) =>
             {
                 var page = query.Page == null ? 1 : query.Page.Value;
-                var pageSize = query.PageSize == null ? BaseQuery.DefaultPageSize : query.PageSize.Value;
+                var pageSize = query.PageSize == null ? BaseQueryDto.DefaultPageSize : query.PageSize.Value;
                 return dbContext.Books.Where(b => b.BorrowedByUserId == id).Select(b => new
                 {
                     b.Id,

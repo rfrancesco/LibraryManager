@@ -1,13 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace LibraryManager
 {
     public class BooksEndpoint
     {
         public static void Map(WebApplication app)
         {
-            app.MapGet("/books", (AppDbContext dbContext, [AsParameters] BookQuery query) =>
+            app.MapGet("/books", (AppDbContext dbContext, [AsParameters] BookQueryDto query) =>
             {
                 var page = query.Page == null ? 1 : query.Page.Value;
-                var pageSize = query.PageSize == null ? BookQuery.DefaultPageSize : query.PageSize.Value;
+                var pageSize = query.PageSize == null ? BookQueryDto.DefaultPageSize : query.PageSize.Value;
                 Console.WriteLine($"{page}, {pageSize}, {query.Title}, {query.Author}, {query.Genre}, {query.Available}");
                 var bookQuery = dbContext.Books.AsQueryable();
                 if (query.Title != null)

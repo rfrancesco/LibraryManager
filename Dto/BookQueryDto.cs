@@ -1,6 +1,6 @@
 namespace LibraryManager
 {
-    public class BookQuery : BaseQuery
+    public class BookQueryDto : BaseQueryDto
     {
         public string? Title { get; set; }
         public string? Author { get; set; }

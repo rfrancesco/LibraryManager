@@ -1,6 +1,6 @@
 namespace LibraryManager
 {
-    public class BaseQuery
+    public class BaseQueryDto
     {
         public int? Page { get; set; }
         public int? PageSize { get; set; }

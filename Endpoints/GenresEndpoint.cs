@@ -6,10 +6,10 @@ namespace LibraryManager
     {
         public static void Map(WebApplication app)
         {
-            app.MapGet("/genres", async (AppDbContext dbContext, [AsParameters] BookQuery query) =>
+            app.MapGet("/genres", async (AppDbContext dbContext, [AsParameters] BookQueryDto query) =>
             {
                 var page = query.Page == null ? 1 : query.Page.Value;
-                var pageSize = query.PageSize == null ? BookQuery.DefaultPageSize : query.PageSize.Value;
+                var pageSize = query.PageSize == null ? BookQueryDto.DefaultPageSize : query.PageSize.Value;
 
                 var bookQuery = dbContext.Books.AsQueryable();
                 if (query.Title != null)
