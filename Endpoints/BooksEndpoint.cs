@@ -17,8 +17,13 @@ namespace LibraryManager
             {
                 var book = await bookService.GetBookByIdAsync(id);
                 return book is not null ? TypedResults.Ok(book) : TypedResults.NotFound();
-            }
-                );
+            });
+
+            app.MapPost("/books", async Task<Ok<BookDetailsDto>> (IBookService bookService, CreateBookDto dto) =>
+            {
+                var result = await bookService.CreateBookAsync(dto);
+                return TypedResults.Ok(result);
+            });
         }
     }
 }

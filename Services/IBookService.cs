@@ -6,5 +6,6 @@ namespace LibraryManager
         Task<List<BookDetailsDto>> SearchBooksAsync(BookQueryDto query);
         Task<List<string>> SearchAuthorsMatchingBookFiltersAsync(BookQueryDto query);
         Task<List<string>> SearchGenresMatchingBookFiltersAsync(BookQueryDto query);
+        Task<BookDetailsDto> CreateBookAsync(CreateBookDto book);
     }
 }

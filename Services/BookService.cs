@@ -50,6 +50,9 @@ namespace LibraryManager
                 bookQuery = bookQuery.Where(b => (!b.Loans.Any(l => l.ReturnDate == null)) == query.Available);
 
             return await bookQuery
+                    .OrderBy(b => b.Id)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
                     .Select(b => new BookDetailsDto(
                         b.Id,
                         b.Title,
@@ -57,9 +60,6 @@ namespace LibraryManager
                         b.Genre,
                         !(b.Loans.Any(l => l.ReturnDate == null))
                     ))
-                    .OrderBy(b => b.Id)
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
                     .ToListAsync();
         }
 
@@ -109,6 +109,15 @@ namespace LibraryManager
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();
+        }
+
+        public async Task<BookDetailsDto> CreateBookAsync(CreateBookDto dto)
+        {
+            var book = new Book { Title = dto.Title, Author = dto.Author, Genre = dto.Genre };
+            _db.Books.Add(book);
+            await _db.SaveChangesAsync();
+
+            return new BookDetailsDto(book.Id, book.Title, book.Author, book.Genre, true);
         }
     }
 }
