@@ -9,10 +9,15 @@ namespace LibraryManager
         public DbSet<Loan> Loans { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        // {
-        //     //base.OnConfiguring(optionsBuilder);
-        //     optionsBuilder.UseSqlite("Data Source=library.db");
-        // }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Add Unique index to ensure that no two open loans (ReturnDate = NULL)
+            // can be created for the same book (BookId)
+            modelBuilder.Entity<Loan>()
+                .HasIndex(l => l.BookId)
+                .IsUnique()
+                // Next line has Sqlite syntax, needs to be changed for SQL Server or Postgres
+                .HasFilter("ReturnDate IS NULL");
+        }
     }
 }
