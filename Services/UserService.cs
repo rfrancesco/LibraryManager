@@ -47,5 +47,14 @@ namespace LibraryManager
                     .ToListAsync();
             return result;
         }
+
+        public async Task<UserDetailsDto> CreateUserAsync(string name)
+        {
+            var user = new User { Name = name };
+            _db.Users.Add(user);
+            await _db.SaveChangesAsync();
+
+            return new UserDetailsDto(user.UserId, user.Name);
+        }
     }
 }

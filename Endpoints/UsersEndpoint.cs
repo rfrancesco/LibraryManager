@@ -33,6 +33,12 @@ namespace LibraryManager
                   .Take(pageSize)
                   .ToList();
             });
+
+            app.MapPost("/users", async Task<Ok<UserDetailsDto>> (IUserService userService, string name) =>
+            {
+                var result = await userService.CreateUserAsync(name);
+                return TypedResults.Ok(result);
+            });
         }
     }
 }

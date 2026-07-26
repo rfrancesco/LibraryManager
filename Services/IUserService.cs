@@ -4,5 +4,6 @@ namespace LibraryManager
     {
         Task<UserDetailsDto?> GetUserByIdAsync(int userId);
         Task<List<UserDetailsDto>> SearchUsersAsync(UserQueryDto query);
+        Task<UserDetailsDto> CreateUserAsync(string name);
     }
 }
