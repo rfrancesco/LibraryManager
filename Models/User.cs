@@ -4,6 +4,6 @@ namespace LibraryManager
     {
         public int UserId { get; set; }
         public string Name { get; set; } = string.Empty;
-        public List<Book> Books { get; set; } = [];
+        public ICollection<Loan> Loans { get; set; } = [];
     }
 }

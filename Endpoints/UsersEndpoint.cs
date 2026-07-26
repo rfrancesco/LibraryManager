@@ -26,7 +26,6 @@ namespace LibraryManager
                 {
                     u.UserId,
                     u.Name
-                    //Books = u.Books.Select(b => new { b.Id, b.Title, b.Author, b.Genre })
                 }).FirstOrDefault(u => u.UserId == id);
                 if (result == null)
                 {
