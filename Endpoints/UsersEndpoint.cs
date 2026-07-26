@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManager
@@ -6,35 +7,16 @@ namespace LibraryManager
     {
         public static void Map(WebApplication app)
         {
-            app.MapGet("/users", (AppDbContext dbContext, [AsParameters] UserQueryDto query) =>
+            app.MapGet("/users", async Task<Ok<List<UserDetailsDto>>> (IUserService userService, [AsParameters] UserQueryDto query) =>
             {
-                var page = query.Page == null ? 1 : query.Page.Value;
-                var pageSize = query.PageSize == null ? UserQueryDto.DefaultPageSize : query.PageSize.Value;
-                var userQuery = dbContext.Users.AsQueryable();
-                if (query.Name != null)
-                    userQuery = userQuery.Where(u => u.Name.ToLower().Contains(query.Name.ToLower()));
-                return Results.Ok(userQuery
-                        .Select(u => new { u.UserId, u.Name })
-                        .Skip((page - 1) * pageSize)
-                        .Take(pageSize)
-                        .ToList());
+                var result = await userService.SearchUsersAsync(query);
+                return TypedResults.Ok(result);
             });
 
-            app.MapGet("/users/{id}", (int id, AppDbContext dbContext) =>
+            app.MapGet("/users/{id}", async Task<Results<Ok<UserDetailsDto>, NotFound>> (int id, IUserService userService) =>
             {
-                var result = dbContext.Users.Select(u => new
-                {
-                    u.UserId,
-                    u.Name
-                }).FirstOrDefault(u => u.UserId == id);
-                if (result == null)
-                {
-                    return Results.NotFound();
-                }
-                else
-                {
-                    return Results.Ok(result);
-                }
+                var result = await userService.GetUserByIdAsync(id);
+                return (result is not null) ? TypedResults.Ok(result) : TypedResults.NotFound();
             });
 
             app.MapGet("/users/{id}/books", (int id, AppDbContext dbContext, [AsParameters] BaseQueryDto query) =>
