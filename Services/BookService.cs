@@ -44,7 +44,6 @@ namespace LibraryManager
         {
             var page = query.Page == null ? 1 : query.Page.Value;
             var pageSize = ValidatePageSize(query.PageSize);
-            Console.WriteLine($"{page}, {pageSize}, {query.Title}, {query.Author}, {query.Genre}, {query.Available}");
             var bookQuery = _db.Books.AsQueryable();
             if (query.Title != null)
                 bookQuery = bookQuery.Where(b => b.Title.ToLower().Contains(query.Title.ToLower()));
@@ -73,7 +72,6 @@ namespace LibraryManager
         {
             var page = query.Page == null ? 1 : query.Page.Value;
             var pageSize = ValidatePageSize(query.PageSize);
-            Console.WriteLine($"{page}, {pageSize}, {query.Title}, {query.Author}, {query.Genre}, {query.Available}");
             var bookQuery = _db.Books.AsQueryable();
             if (query.Title != null)
                 bookQuery = bookQuery.Where(b => b.Title.ToLower().Contains(query.Title.ToLower()));
@@ -97,7 +95,6 @@ namespace LibraryManager
         {
             var page = query.Page == null ? 1 : query.Page.Value;
             var pageSize = ValidatePageSize(query.PageSize);
-            Console.WriteLine($"{page}, {pageSize}, {query.Title}, {query.Author}, {query.Genre}, {query.Available}");
             var bookQuery = _db.Books.AsQueryable();
             if (query.Title != null)
                 bookQuery = bookQuery.Where(b => b.Title.ToLower().Contains(query.Title.ToLower()));
