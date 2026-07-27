@@ -22,10 +22,10 @@ namespace LibraryManager
             })
             .WithSummary("Get book details by id");
 
-            group.MapPost("/", async Task<Ok<BookDetailsDto>> (IBookService bookService, CreateBookDto dto) =>
+            group.MapPost("/", async Task<Created<BookDetailsDto>> (IBookService bookService, CreateBookDto dto) =>
             {
                 var result = await bookService.CreateBookAsync(dto);
-                return TypedResults.Ok(result);
+                return TypedResults.Created($"/books/{result.BookId}", result);
             })
             .WithSummary("Add a book to the library");
         }

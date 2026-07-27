@@ -2,10 +2,10 @@ namespace LibraryManager
 {
     public record BookDetailsDto
     (
-        int Id,
+        int BookId,
         string Title,
         string Author,
         string Genre,
-        bool available
+        bool Available
     );
 }

@@ -39,10 +39,10 @@ namespace LibraryManager
             })
             .WithSummary("Get list of active loans for the specified user");
 
-            group.MapPost("/", async Task<Ok<UserDetailsDto>> (IUserService userService, string name) =>
+            group.MapPost("/", async Task<Created<UserDetailsDto>> (IUserService userService, CreateUserDto dto) =>
             {
-                var result = await userService.CreateUserAsync(name);
-                return TypedResults.Ok(result);
+                var result = await userService.CreateUserAsync(dto.Name);
+                return TypedResults.Created($"/users/{result.UserId}", result);
             })
             .WithSummary("Create a new user");
         }
