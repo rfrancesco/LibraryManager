@@ -39,7 +39,7 @@ namespace LibraryManager
                 };
             })
             .WithSummary("Create new loan")
-            .WithSummary("Returns Created and loan details on success, otherwise NotFound (user or book not found) of Conflict (book already loaned)");
+            .WithDescription("Returns Created and loan details on success, otherwise NotFound (user or book not found) of Conflict (book already loaned)");
 
             group.MapPost("/{id}/return", async Task<Results<Ok<LoanDetailsDto>, NotFound>> (ILoanService loanService, int loanId) =>
             {
