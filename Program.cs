@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using EntityFramework.Exceptions.Sqlite;
 
 namespace LibraryManager
 {
@@ -8,14 +8,18 @@ namespace LibraryManager
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlite("Data Source=library.db"));
+            builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlite("Data Source=library.db").UseExceptionProcessor());
             builder.Services.AddScoped<IBookService, BookService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ILoanService, LoanService>();
             builder.Services.AddValidation();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddProblemDetails();
             var app = builder.Build();
+
+            app.UseExceptionHandler();
+            app.UseStatusCodePages();
 
             if (app.Environment.IsDevelopment())
             {
