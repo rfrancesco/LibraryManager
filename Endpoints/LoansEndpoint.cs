@@ -4,7 +4,7 @@ namespace LibraryManager
 {
     public class LoansEndpoint
     {
-        public static async Task Map(WebApplication app)
+        public static void Map(WebApplication app)
         {
             var group = app.MapGroup("/loans").WithTags("Loans");
 
