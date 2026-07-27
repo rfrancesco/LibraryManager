@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace LibraryManager
@@ -35,7 +36,8 @@ namespace LibraryManager
                     // is impossible by design 
                     CreateLoanStatusResult.BookNotFound => TypedResults.NotFound("Book not found"),
                     CreateLoanStatusResult.UserNotFound => TypedResults.NotFound("User not found"),
-                    CreateLoanStatusResult.BookAlreadyLoaned => TypedResults.Conflict("Book is currently not available")
+                    CreateLoanStatusResult.BookAlreadyLoaned => TypedResults.Conflict("Book is currently not available"),
+                    _ => throw new UnreachableException()
                 };
             })
             .WithSummary("Create new loan")
