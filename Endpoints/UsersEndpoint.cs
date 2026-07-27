@@ -29,7 +29,7 @@ namespace LibraryManager
                 var pageSize = query.PageSize == null ? BaseQueryDto.DefaultPageSize : query.PageSize.Value;
                 return dbContext.Books.Where(b => (b.Loans.Any(l => l.UserId == id && l.ReturnDate == null))).Select(b => new
                 {
-                    b.Id,
+                    b.BookId,
                     b.Title,
                     b.Author,
                     b.Genre

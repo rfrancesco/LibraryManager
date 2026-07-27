@@ -22,16 +22,16 @@ namespace LibraryManager
 
         public async Task<bool> BookExistsAsync(int bookId)
         {
-            return await _db.Books.AnyAsync(b => b.Id == bookId);
+            return await _db.Books.AnyAsync(b => b.BookId == bookId);
         }
 
         public async Task<BookDetailsDto?> GetBookByIdAsync(int bookId)
         {
             return await _db.Books
-                            .Where(b => b.Id == bookId)
+                            .Where(b => b.BookId == bookId)
                             .Select(b => new
                             BookDetailsDto(
-                                b.Id,
+                                b.BookId,
                                 b.Title,
                                 b.Author,
                                 b.Genre,
@@ -56,11 +56,11 @@ namespace LibraryManager
                 bookQuery = bookQuery.Where(b => (!b.Loans.Any(l => l.ReturnDate == null)) == query.Available);
 
             return await bookQuery
-                    .OrderBy(b => b.Id)
+                    .OrderBy(b => b.BookId)
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
                     .Select(b => new BookDetailsDto(
-                        b.Id,
+                        b.BookId,
                         b.Title,
                         b.Author,
                         b.Genre,
@@ -123,7 +123,7 @@ namespace LibraryManager
             _db.Books.Add(book);
             await _db.SaveChangesAsync();
 
-            return new BookDetailsDto(book.Id, book.Title, book.Author, book.Genre, true);
+            return new BookDetailsDto(book.BookId, book.Title, book.Author, book.Genre, true);
         }
     }
 }
