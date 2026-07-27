@@ -99,7 +99,7 @@ POST  /loans/{id}/return    Mark a loan as returned
 
 Rough priority order:
 
-- [ ] Unit tests on the services
+- [ ] Unit tests on the services (In progress)
 - [ ] Integration tests over HTTP (`WebApplicationFactory`) for routing and status codes
 - [ ] CI: build and test on push
 - [ ] Authentication and authorization, splitting access between:
@@ -117,6 +117,7 @@ Rough priority order:
 dotnet tool install --global dotnet-ef
 
 # Create and apply the initial migration
+cd LibraryManager
 dotnet ef migrations add InitialCreate
 dotnet ef database update
 
@@ -124,3 +125,10 @@ dotnet run
 ```
 
 Listens on `http://localhost:5010`; Swagger UI is at `/swagger` in the Development environment. On startup in development, `DbInitializer` seeds `library.db` with a few dozen books, five users and a handful of loans if the tables are empty. It's gated behind `IsDevelopment()` in `Program.cs`, so it never runs elsewhere. The seed data is illustrative, not realistic.
+
+### Running tests
+You can run the test suite from the repo root with
+
+```bash
+dotnet test
+```
