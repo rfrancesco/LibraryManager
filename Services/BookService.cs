@@ -19,6 +19,12 @@ namespace LibraryManager
         {
             _db = db;
         }
+
+        public async Task<bool> BookExistsAsync(int bookId)
+        {
+            return await _db.Books.AnyAsync(b => b.Id == bookId);
+        }
+
         public async Task<BookDetailsDto?> GetBookByIdAsync(int bookId)
         {
             return await _db.Books

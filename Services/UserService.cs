@@ -33,6 +33,11 @@ namespace LibraryManager
             return result;
         }
 
+        public async Task<bool> UserExistsAsync(int userId)
+        {
+            return await _db.Users.AnyAsync(u => u.UserId == userId);
+        }
+
         public async Task<List<UserDetailsDto>> SearchUsersAsync(UserQueryDto query)
         {
             var page = query.Page == null ? 1 : query.Page.Value;

@@ -11,6 +11,7 @@ namespace LibraryManager
             builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlite("Data Source=library.db"));
             builder.Services.AddScoped<IBookService, BookService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<ILoanService, LoanService>();
             builder.Services.AddValidation();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -35,6 +36,8 @@ namespace LibraryManager
             GenresEndpoint.Map(app);
 
             UsersEndpoint.Map(app);
+
+            LoansEndpoint.Map(app);
 
             app.Run();
         }
