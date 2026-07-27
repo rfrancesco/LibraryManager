@@ -11,7 +11,9 @@ namespace LibraryManager
             {
                 var result = await bookService.SearchGenresMatchingBookFiltersAsync(query);
                 return TypedResults.Ok(result);
-            });
+            })
+            .WithSummary("Search genres matching book filters")
+            .WithDescription("Returns list of distinct genres whose books match the given filters. Supports pagination");
         }
     }
 }

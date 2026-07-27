@@ -12,13 +12,16 @@ namespace LibraryManager
             {
                 var result = await userService.SearchUsersAsync(query);
                 return TypedResults.Ok(result);
-            });
+            })
+            .WithSummary("Search users")
+            .WithDescription("Returns list of users matching given filters. Supports pagination");
 
             group.MapGet("/{id}", async Task<Results<Ok<UserDetailsDto>, NotFound>> (int id, IUserService userService) =>
             {
                 var result = await userService.GetUserByIdAsync(id);
                 return (result is not null) ? TypedResults.Ok(result) : TypedResults.NotFound();
-            });
+            })
+            .WithSummary("Get user details by id");
 
             group.MapGet("/{id}/books", (int id, AppDbContext dbContext, [AsParameters] BaseQueryDto query) =>
             {
@@ -33,13 +36,15 @@ namespace LibraryManager
                 }).Skip((page - 1) * pageSize)
                   .Take(pageSize)
                   .ToList();
-            });
+            })
+            .WithSummary("Get list of active loans for the specified user");
 
             group.MapPost("/", async Task<Ok<UserDetailsDto>> (IUserService userService, string name) =>
             {
                 var result = await userService.CreateUserAsync(name);
                 return TypedResults.Ok(result);
-            });
+            })
+            .WithSummary("Create a new user");
         }
     }
 }
