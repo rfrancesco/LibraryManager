@@ -20,7 +20,7 @@ This is a learning/portfolio project: the primary goal is to practice idiomatic 
 
 ## Data model
 
-- `Book` — `Id`, `Title`, `Author`, `Genre` (all plain strings; see limitations below)
+- `Book` — `BookId`, `Title`, `Author`, `Genre` (all plain strings; see limitations below)
 - `User` — `UserId`, `Name`
 - `Loan` — `LoanId`, `BookId`, `UserId`, `LoanDate`, `ExpiryDate`, `ReturnDate` (nullable — `null` means the loan is active)
 
@@ -91,7 +91,15 @@ Rough priority order:
 ## Running locally
 
 ```bash
+# Requires dotnet-ef if not already installed
+dotnet tool install --global dotnet-ef
+
+# Initialize the database
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+
+# Now build and run
 dotnet run
 ```
 
-Swagger UI is available at `/swagger` in the Development environment. The SQLite database (`library.db`) is seeded automatically on first run if empty, via `DbInitializer` — gated behind `IsDevelopment()` in `Program.cs`, so it never runs outside local development. The seed data is illustrative (a few dozen books, users, and loans) and not meant to be exhaustive or realistic; loan records reference books by their expected auto-generated id, so reordering the seed book list will silently point loans at the wrong book.
+Swagger UI is available at `/swagger` in the Development environment. The SQLite database (`library.db`) is seeded automatically on first run if empty, via `DbInitializer` — gated behind `IsDevelopment()` in `Program.cs`, so it never runs outside local development. The seed data is illustrative (a few dozen books, users, and loans) and not meant to be exhaustive or realistic.
