@@ -17,9 +17,9 @@ namespace LibraryManager
             .WithSummary("Search loan history")
             .WithDescription("Returns list of loans matching given filters. Supports pagination");
 
-            group.MapGet("/{id}", async Task<Results<Ok<LoanDetailsDto>, NotFound>> (ILoanService loanService, int loanId) =>
+            group.MapGet("/{id}", async Task<Results<Ok<LoanDetailsDto>, NotFound>> (ILoanService loanService, int id) =>
             {
-                var result = await loanService.GetLoanFromIdAsync(loanId);
+                var result = await loanService.GetLoanFromIdAsync(id);
 
                 return result is not null ? TypedResults.Ok(result) : TypedResults.NotFound();
             })
@@ -41,9 +41,9 @@ namespace LibraryManager
             .WithSummary("Create new loan")
             .WithDescription("Returns Created and loan details on success, otherwise NotFound (user or book not found) of Conflict (book already loaned)");
 
-            group.MapPost("/{id}/return", async Task<Results<Ok<LoanDetailsDto>, NotFound>> (ILoanService loanService, int loanId) =>
+            group.MapPost("/{id}/return", async Task<Results<Ok<LoanDetailsDto>, NotFound>> (ILoanService loanService, int id) =>
             {
-                var result = await loanService.ReturnLoanAsync(loanId);
+                var result = await loanService.ReturnLoanAsync(id);
 
                 return result is not null ? TypedResults.Ok(result) : TypedResults.NotFound();
             })
