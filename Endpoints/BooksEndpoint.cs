@@ -6,19 +6,20 @@ namespace LibraryManager
     {
         public static void Map(WebApplication app)
         {
-            app.MapGet("/books", async Task<Ok<List<BookDetailsDto>>> (IBookService bookService, [AsParameters] BookQueryDto query) =>
+            var group = app.MapGroup("/books").WithTags("Books");
+            group.MapGet("/", async Task<Ok<List<BookDetailsDto>>> (IBookService bookService, [AsParameters] BookQueryDto query) =>
             {
                 var result = await bookService.SearchBooksAsync(query);
                 return TypedResults.Ok(result);
             });
 
-            app.MapGet("/books/{id}", async Task<Results<Ok<BookDetailsDto>, NotFound>> (int id, IBookService bookService) =>
+            group.MapGet("/{id}", async Task<Results<Ok<BookDetailsDto>, NotFound>> (int id, IBookService bookService) =>
             {
                 var book = await bookService.GetBookByIdAsync(id);
                 return book is not null ? TypedResults.Ok(book) : TypedResults.NotFound();
             });
 
-            app.MapPost("/books", async Task<Ok<BookDetailsDto>> (IBookService bookService, CreateBookDto dto) =>
+            group.MapPost("/", async Task<Ok<BookDetailsDto>> (IBookService bookService, CreateBookDto dto) =>
             {
                 var result = await bookService.CreateBookAsync(dto);
                 return TypedResults.Ok(result);

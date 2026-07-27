@@ -6,7 +6,8 @@ namespace LibraryManager
     {
         public static async Task Map(WebApplication app)
         {
-            app.MapPost("/loans", async Task<Results<Created<LoanDetailsDto>, NotFound<string>, Conflict<string>>> (ILoanService loanService, CreateLoanDto dto) =>
+            var group = app.MapGroup("/loans").WithTags("Loans");
+            group.MapPost("/", async Task<Results<Created<LoanDetailsDto>, NotFound<string>, Conflict<string>>> (ILoanService loanService, CreateLoanDto dto) =>
             {
                 var result = await loanService.CreateLoanAsync(dto.BookId, dto.UserId);
                 return result.Status switch
@@ -20,21 +21,21 @@ namespace LibraryManager
                 };
             });
 
-            app.MapGet("/loans", async Task<Ok<List<LoanDetailsDto>>> (ILoanService loanService, [AsParameters] LoanQueryDto query) =>
+            group.MapGet("/", async Task<Ok<List<LoanDetailsDto>>> (ILoanService loanService, [AsParameters] LoanQueryDto query) =>
             {
                 var result = await loanService.SearchLoansAsync(query);
 
                 return TypedResults.Ok(result);
             });
 
-            app.MapGet("/loans/{id}", async Task<Results<Ok<LoanDetailsDto>, NotFound>> (ILoanService loanService, int loanId) =>
+            group.MapGet("/{id}", async Task<Results<Ok<LoanDetailsDto>, NotFound>> (ILoanService loanService, int loanId) =>
             {
                 var result = await loanService.GetLoanFromIdAsync(loanId);
 
                 return result is not null ? TypedResults.Ok(result) : TypedResults.NotFound();
             });
 
-            app.MapPost("/loans/{id}/return", async Task<Results<Ok<LoanDetailsDto>, NotFound>> (ILoanService loanService, int loanId) =>
+            group.MapPost("/{id}/return", async Task<Results<Ok<LoanDetailsDto>, NotFound>> (ILoanService loanService, int loanId) =>
             {
                 var result = await loanService.ReturnLoanAsync(loanId);
 

@@ -7,19 +7,20 @@ namespace LibraryManager
     {
         public static void Map(WebApplication app)
         {
-            app.MapGet("/users", async Task<Ok<List<UserDetailsDto>>> (IUserService userService, [AsParameters] UserQueryDto query) =>
+            var group = app.MapGroup("/users").WithTags("Users");
+            group.MapGet("/", async Task<Ok<List<UserDetailsDto>>> (IUserService userService, [AsParameters] UserQueryDto query) =>
             {
                 var result = await userService.SearchUsersAsync(query);
                 return TypedResults.Ok(result);
             });
 
-            app.MapGet("/users/{id}", async Task<Results<Ok<UserDetailsDto>, NotFound>> (int id, IUserService userService) =>
+            group.MapGet("/{id}", async Task<Results<Ok<UserDetailsDto>, NotFound>> (int id, IUserService userService) =>
             {
                 var result = await userService.GetUserByIdAsync(id);
                 return (result is not null) ? TypedResults.Ok(result) : TypedResults.NotFound();
             });
 
-            app.MapGet("/users/{id}/books", (int id, AppDbContext dbContext, [AsParameters] BaseQueryDto query) =>
+            group.MapGet("/{id}/books", (int id, AppDbContext dbContext, [AsParameters] BaseQueryDto query) =>
             {
                 var page = query.Page == null ? 1 : query.Page.Value;
                 var pageSize = query.PageSize == null ? BaseQueryDto.DefaultPageSize : query.PageSize.Value;
@@ -34,7 +35,7 @@ namespace LibraryManager
                   .ToList();
             });
 
-            app.MapPost("/users", async Task<Ok<UserDetailsDto>> (IUserService userService, string name) =>
+            group.MapPost("/", async Task<Ok<UserDetailsDto>> (IUserService userService, string name) =>
             {
                 var result = await userService.CreateUserAsync(name);
                 return TypedResults.Ok(result);
