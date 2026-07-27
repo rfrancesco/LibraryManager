@@ -23,19 +23,27 @@ namespace LibraryManager
             })
             .WithSummary("Get user details by id");
 
-            group.MapGet("/{id}/books", (int id, AppDbContext dbContext, [AsParameters] BaseQueryDto query) =>
+            group.MapGet("/{id}/books", async Task<Results<Ok<List<BookDetailsDto>>, NotFound<string>>> (int id, AppDbContext dbContext, IUserService userService, [AsParameters] BaseQueryDto query) =>
             {
+                if (!await userService.UserExistsAsync(id))
+                    return TypedResults.NotFound("User not found");
+
                 var page = query.Page == null ? 1 : query.Page.Value;
-                var pageSize = query.PageSize == null ? BaseQueryDto.DefaultPageSize : query.PageSize.Value;
-                return dbContext.Books.Where(b => (b.Loans.Any(l => l.UserId == id && l.ReturnDate == null))).Select(b => new
-                {
-                    b.BookId,
-                    b.Title,
-                    b.Author,
-                    b.Genre
-                }).Skip((page - 1) * pageSize)
-                  .Take(pageSize)
-                  .ToList();
+                // On the magic numbers 20, 100:
+                // This needs to be refactored into LoanService, where DefaultPageSize and MaxPageSize are provided
+                var pageSize = query.PageSize == null ? 20 : Math.Clamp(query.PageSize.Value, 1, 100);
+                var result = await dbContext.Books
+                    .Where(b => (b.Loans.Any(l => l.UserId == id && l.ReturnDate == null)))
+                    .OrderBy(b => b.BookId)
+                    .Select(b => new BookDetailsDto(b.BookId,
+                                                    b.Title,
+                                                    b.Author,
+                                                    b.Genre, false))
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                return TypedResults.Ok(result);
             })
             .WithSummary("Get list of active loans for the specified user");
 
