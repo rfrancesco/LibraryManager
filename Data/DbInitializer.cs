@@ -95,11 +95,11 @@ namespace LibraryManager
         {
             var loans = new[]
             {
-                new Loan { UserId = 1, BookId = 1, LoanDate = DateTime.Now.AddDays(-10), ExpiryDate = DateTime.Now.AddDays(20), ReturnDate = DateTime.Now.AddDays(-1) },
-                new Loan { UserId = 1, BookId = 5, LoanDate = DateTime.Now.AddDays(-10), ExpiryDate = DateTime.Now.AddDays(20) },
-                new Loan { UserId = 1, BookId = 7, LoanDate = DateTime.Now.AddDays(-10), ExpiryDate = DateTime.Now.AddDays(20) },
-                new Loan { UserId = 2, BookId = 2, LoanDate = DateTime.Now.AddDays(-5), ExpiryDate = DateTime.Now.AddDays(25) },
-                new Loan { UserId = 3, BookId = 3, LoanDate = DateTime.Now.AddDays(-15), ExpiryDate = DateTime.Now.AddDays(15) }
+                new Loan { UserId = 1, BookId = 1, LoanDate = DateTime.UtcNow.AddDays(-10), ExpiryDate = DateTime.UtcNow.AddDays(20), ReturnDate = DateTime.UtcNow.AddDays(-1) },
+                new Loan { UserId = 1, BookId = 5, LoanDate = DateTime.UtcNow.AddDays(-10), ExpiryDate = DateTime.UtcNow.AddDays(20) },
+                new Loan { UserId = 1, BookId = 7, LoanDate = DateTime.UtcNow.AddDays(-10), ExpiryDate = DateTime.UtcNow.AddDays(20) },
+                new Loan { UserId = 2, BookId = 2, LoanDate = DateTime.UtcNow.AddDays(-5), ExpiryDate = DateTime.UtcNow.AddDays(25) },
+                new Loan { UserId = 3, BookId = 3, LoanDate = DateTime.UtcNow.AddDays(-15), ExpiryDate = DateTime.UtcNow.AddDays(15) }
             };
 
             dbContext.Loans.AddRange(loans);
