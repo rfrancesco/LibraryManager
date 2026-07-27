@@ -24,6 +24,12 @@ namespace LibraryManager
             _bookService = bookService;
             _userService = userService;
         }
+
+        public async Task<bool> LoanExistsAsync(int loanId)
+        {
+            return await _db.Loans.AnyAsync(l => l.LoanId == loanId);
+        }
+
         public async Task<bool> HasActiveLoanAsync(int bookId)
         {
             return await _db.Loans.AnyAsync(l => l.BookId == bookId && l.ReturnDate == null);
@@ -68,6 +74,50 @@ namespace LibraryManager
             return await _db.Loans.Where(l => l.LoanId == loanId)
                 .Select(l => new LoanDetailsDto(l.LoanId, l.BookId, l.UserId, l.LoanDate, l.ExpiryDate, l.ReturnDate))
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<LoanDetailsDto>> SearchLoansAsync(LoanQueryDto query)
+        {
+            var page = query.Page == null ? 1 : query.Page.Value;
+            var pageSize = ValidatePageSize(query.PageSize);
+            var loanQuery = _db.Loans.AsQueryable();
+
+            if (query.UserId is not null)
+                loanQuery = loanQuery.Where(l => l.UserId == query.UserId);
+            if (query.BookId is not null)
+                loanQuery = loanQuery.Where(l => l.BookId == query.BookId);
+            if (query.Active is not null)
+                loanQuery = loanQuery.Where(l => (l.ReturnDate == null) == query.Active);
+
+            return await loanQuery
+                    .OrderBy(l => l.LoanId)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(l => new LoanDetailsDto(
+                        l.LoanId,
+                        l.BookId,
+                        l.UserId,
+                        l.LoanDate,
+                        l.ExpiryDate,
+                        l.ReturnDate
+                    ))
+                    .ToListAsync();
+        }
+
+        public async Task<LoanDetailsDto?> ReturnLoanAsync(int loanId)
+        {
+            var loan = await _db.Loans.FindAsync(loanId);
+
+            if (loan is null)
+                return null;
+
+            if (loan.ReturnDate is not null)
+                return null;
+
+            loan.ReturnDate = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+
+            return new LoanDetailsDto(loan.LoanId, loan.BookId, loan.UserId, loan.LoanDate, loan.ExpiryDate, loan.ReturnDate);
         }
     }
 }

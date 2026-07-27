@@ -4,7 +4,7 @@ namespace LibraryManager
 {
     public class LoansEndpoint
     {
-        public static void Map(WebApplication app)
+        public static async Task Map(WebApplication app)
         {
             app.MapPost("/loans", async Task<Results<Created<LoanDetailsDto>, NotFound<string>, Conflict<string>>> (ILoanService loanService, CreateLoanDto dto) =>
             {
@@ -20,9 +20,23 @@ namespace LibraryManager
                 };
             });
 
+            app.MapGet("/loans", async Task<Ok<List<LoanDetailsDto>>> (ILoanService loanService, [AsParameters] LoanQueryDto query) =>
+            {
+                var result = await loanService.SearchLoansAsync(query);
+
+                return TypedResults.Ok(result);
+            });
+
             app.MapGet("/loans/{id}", async Task<Results<Ok<LoanDetailsDto>, NotFound>> (ILoanService loanService, int loanId) =>
             {
                 var result = await loanService.GetLoanFromIdAsync(loanId);
+
+                return result is not null ? TypedResults.Ok(result) : TypedResults.NotFound();
+            });
+
+            app.MapPost("/loans/{id}/return", async Task<Results<Ok<LoanDetailsDto>, NotFound>> (ILoanService loanService, int loanId) =>
+            {
+                var result = await loanService.ReturnLoanAsync(loanId);
 
                 return result is not null ? TypedResults.Ok(result) : TypedResults.NotFound();
             });
