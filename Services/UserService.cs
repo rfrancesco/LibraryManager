@@ -46,6 +46,7 @@ namespace LibraryManager
             if (query.Name != null)
                 userQuery = userQuery.Where(u => u.Name.ToLower().Contains(query.Name.ToLower()));
             var result = await userQuery
+                    .OrderBy(u => u.UserId)
                     .Select(u => new UserDetailsDto(u.UserId, u.Name))
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
