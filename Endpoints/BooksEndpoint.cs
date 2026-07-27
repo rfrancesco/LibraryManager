@@ -20,7 +20,7 @@ namespace LibraryManager
                 var book = await bookService.GetBookByIdAsync(id);
                 return book is not null ? TypedResults.Ok(book) : TypedResults.NotFound();
             })
-            .WithSummary("Get user details by id");
+            .WithSummary("Get book details by id");
 
             group.MapPost("/", async Task<Ok<BookDetailsDto>> (IBookService bookService, CreateBookDto dto) =>
             {
