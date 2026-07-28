@@ -132,3 +132,18 @@ You can run the test suite from the repo root with
 ```bash
 dotnet test
 ```
+
+### Running on Docker/Podman
+```
+docker build -t librarymanager .
+docker run -p 5010:5010 librarymanager
+```
+or equivalently, using `podman`,
+```
+podman build -t librarymanager .
+podman run -p 5010:5010 librarymanager
+```
+
+The Dockerfile builds the SQLite database (including migrations) from scratch at the build step. The database is ephemeral (changes are lost when the container terminates), which is ok for demo/development purposes but not for production.
+
+The Dockerfile automatically runs the test suite before continuing with the build. 
