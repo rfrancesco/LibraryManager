@@ -66,13 +66,20 @@ namespace LibraryManager
                 return new CreateLoanResult(CreateLoanStatusResult.BookAlreadyLoaned, null);
             }
 
-            return new CreateLoanResult(CreateLoanStatusResult.Success, new LoanDetailsDto(loan.LoanId, loan.BookId, loan.UserId, loan.LoanDate, loan.ExpiryDate, loan.ReturnDate));
+            return new CreateLoanResult(CreateLoanStatusResult.Success,
+                                        new LoanDetailsDto(loan.LoanId,
+                                            new BookSummaryDto(loan.Book.BookId, loan.Book.Title, loan.Book.Author),
+                                            new UserDetailsDto(loan.User.UserId, loan.User.Name),
+                                            loan.LoanDate, loan.ExpiryDate, loan.ReturnDate));
         }
 
         public async Task<LoanDetailsDto?> GetLoanFromIdAsync(int loanId)
         {
             return await _db.Loans.Where(l => l.LoanId == loanId)
-                .Select(l => new LoanDetailsDto(l.LoanId, l.BookId, l.UserId, l.LoanDate, l.ExpiryDate, l.ReturnDate))
+                .Select(l => new LoanDetailsDto(l.LoanId,
+                            new BookSummaryDto(l.Book.BookId, l.Book.Title, l.Book.Author),
+                            new UserDetailsDto(l.User.UserId, l.User.Name),
+                            l.LoanDate, l.ExpiryDate, l.ReturnDate))
                 .FirstOrDefaultAsync();
         }
 
@@ -95,8 +102,8 @@ namespace LibraryManager
                     .Take(pageSize)
                     .Select(l => new LoanDetailsDto(
                         l.LoanId,
-                        l.BookId,
-                        l.UserId,
+                        new BookSummaryDto(l.Book.BookId, l.Book.Title, l.Book.Author),
+                        new UserDetailsDto(l.User.UserId, l.User.Name),
                         l.LoanDate,
                         l.ExpiryDate,
                         l.ReturnDate
@@ -117,7 +124,10 @@ namespace LibraryManager
             loan.ReturnDate = DateTime.UtcNow;
             await _db.SaveChangesAsync();
 
-            return new LoanDetailsDto(loan.LoanId, loan.BookId, loan.UserId, loan.LoanDate, loan.ExpiryDate, loan.ReturnDate);
+            return new LoanDetailsDto(loan.LoanId,
+                        new BookSummaryDto(loan.Book.BookId, loan.Book.Title, loan.Book.Author),
+                        new UserDetailsDto(loan.User.UserId, loan.User.Name),
+                        loan.LoanDate, loan.ExpiryDate, loan.ReturnDate);
         }
     }
 }
