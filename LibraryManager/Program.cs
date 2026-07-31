@@ -21,6 +21,7 @@ namespace LibraryManager
             app.UseExceptionHandler();
             app.UseStatusCodePages();
 
+            // Developer/Demo: seed data if requested, enable Swagger
             if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Demo"))
             {
                 bool seedDemoData = builder.Configuration.GetValue<bool>("SEED_DEMO_DATA");
@@ -45,6 +46,27 @@ namespace LibraryManager
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
+
+            // Demo mode: reject all non-GET requests
+            if (app.Environment.IsEnvironment("Demo"))
+            {
+                app.Logger.LogInformation("{Environment}: API is read only. Only GET requests allowed.", app.Environment.EnvironmentName);
+                app.Use(async (context, next) =>
+                {
+                    if (context.Request.Method != HttpMethods.Get)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        context.Response.ContentType = "application/json";
+
+                        await context.Response.WriteAsJsonAsync(
+                            new { message = "Demo mode enabled: data is read-only, only GET requests are allowed." }
+                        );
+
+                        return;
+                    }
+                    await next.Invoke();
+                });
+            }
 
 
 
