@@ -21,22 +21,29 @@ namespace LibraryManager
             app.UseExceptionHandler();
             app.UseStatusCodePages();
 
-            // Developer/Demo: seed data if requested, enable Swagger
-            if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Demo"))
+            bool seedDemoData = builder.Configuration.GetValue<bool>("SEED_DEMO_DATA")
+                                && (app.Environment.IsDevelopment()
+                                    || app.Environment.IsEnvironment("Demo"));
+
+            bool apiIsReadOnly = app.Environment.IsEnvironment("Demo");
+
+            bool enableSwagger = app.Environment.IsDevelopment()
+                                || app.Environment.IsEnvironment("Demo");
+
+            if (seedDemoData)
             {
-                bool seedDemoData = builder.Configuration.GetValue<bool>("SEED_DEMO_DATA");
-                if (seedDemoData)
+                using (var scope = app.Services.CreateScope())
                 {
-                    using (var scope = app.Services.CreateScope())
-                    {
-                        var logger = scope.ServiceProvider.GetRequiredService<ILogger<DbInitializer>>();
-                        logger.LogInformation($"{app.Environment.EnvironmentName} mode: SEED_DEMO_DATA=true");
+                    var logger = scope.ServiceProvider.GetRequiredService<ILogger<DbInitializer>>();
+                    logger.LogInformation($"{app.Environment.EnvironmentName} mode: SEED_DEMO_DATA=true");
 
-                        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                        await DbInitializer.InitializeIfEmpty(dbContext, logger);
-                    }
+                    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    await DbInitializer.InitializeIfEmpty(dbContext, logger);
                 }
+            }
 
+            if (enableSwagger)
+            {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
@@ -48,7 +55,7 @@ namespace LibraryManager
             app.UseHttpsRedirection();
 
             // Demo mode: reject all non-GET requests
-            if (app.Environment.IsEnvironment("Demo"))
+            if (apiIsReadOnly)
             {
                 app.Logger.LogInformation("{Environment}: API is read only. Only GET requests allowed.", app.Environment.EnvironmentName);
                 app.Use(async (context, next) =>
