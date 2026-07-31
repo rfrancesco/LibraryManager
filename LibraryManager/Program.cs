@@ -21,9 +21,13 @@ namespace LibraryManager
             app.UseExceptionHandler();
             app.UseStatusCodePages();
 
-            bool seedDemoData = builder.Configuration.GetValue<bool>("SEED_DEMO_DATA")
-                                && (app.Environment.IsDevelopment()
-                                    || app.Environment.IsEnvironment("Demo"));
+            // Data seeding
+            // Demo mode: automatic
+            // Development mode: can be switched on with SEED_DEMO_DATA
+            // Production mode: not allowed
+            bool seedDemoData = app.Environment.IsEnvironment("Demo")
+                                || (builder.Configuration.GetValue<bool>("SEED_DEMO_DATA")
+                                    && app.Environment.IsDevelopment());
 
             bool apiIsReadOnly = app.Environment.IsEnvironment("Demo");
 
