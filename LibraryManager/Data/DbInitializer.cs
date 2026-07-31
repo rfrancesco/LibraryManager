@@ -3,6 +3,8 @@
    Todo: make this optional via configuration (this should only be used for development/testing).
 */
 
+using Microsoft.EntityFrameworkCore;
+
 namespace LibraryManager
 {
     public class DbInitializer
@@ -105,16 +107,22 @@ namespace LibraryManager
             dbContext.Loans.AddRange(loans);
             dbContext.SaveChanges();
         }
-        public static void InitializeIfEmpty(AppDbContext dbContext)
+        public static async Task InitializeIfEmpty(AppDbContext dbContext, ILogger logger)
         {
-            if (!dbContext.Users.Any())
-                InitializeUserDb(dbContext);
+            bool dbHasData = await dbContext.Books.AnyAsync()
+                            || await dbContext.Users.AnyAsync()
+                            || await dbContext.Loans.AnyAsync();
 
-            if (!dbContext.Books.Any())
-                InitializeBookDb(dbContext);
+            if (dbHasData)
+            {
+                logger.LogInformation("Database is not empty. No data will be seeded");
+                return;
+            }
 
-            if (!dbContext.Loans.Any())
-                InitializeLoanDb(dbContext);
+            logger.LogInformation("Database is empty. Writing demo data...");
+            InitializeBookDb(dbContext);
+            InitializeUserDb(dbContext);
+            InitializeLoanDb(dbContext);
         }
     }
 }

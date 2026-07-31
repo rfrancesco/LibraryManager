@@ -5,7 +5,7 @@ namespace LibraryManager
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlite("Data Source=library.db").UseExceptionProcessor());
@@ -21,12 +21,19 @@ namespace LibraryManager
             app.UseExceptionHandler();
             app.UseStatusCodePages();
 
-            if (app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Demo"))
             {
-                using (var scope = app.Services.CreateScope())
+                bool seedDemoData = builder.Configuration.GetValue<bool>("SEED_DEMO_DATA");
+                if (seedDemoData)
                 {
-                    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                    DbInitializer.InitializeIfEmpty(dbContext);
+                    using (var scope = app.Services.CreateScope())
+                    {
+                        var logger = scope.ServiceProvider.GetRequiredService<ILogger<DbInitializer>>();
+                        logger.LogInformation($"{app.Environment.EnvironmentName} mode: SEED_DEMO_DATA=true");
+
+                        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                        await DbInitializer.InitializeIfEmpty(dbContext, logger);
+                    }
                 }
 
                 app.UseSwagger();
