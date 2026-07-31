@@ -107,7 +107,7 @@ namespace LibraryManager
             dbContext.Loans.AddRange(loans);
             dbContext.SaveChanges();
         }
-        public static async Task InitializeIfEmpty(AppDbContext dbContext, ILogger logger)
+        public static async Task InitializeIfEmptyAsync(AppDbContext dbContext, ILogger logger)
         {
             bool dbHasData = await dbContext.Books.AnyAsync()
                             || await dbContext.Users.AnyAsync()

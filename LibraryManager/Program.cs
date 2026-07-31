@@ -42,7 +42,7 @@ namespace LibraryManager
                     logger.LogInformation($"{app.Environment.EnvironmentName} mode: SEED_DEMO_DATA=true");
 
                     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                    await DbInitializer.InitializeIfEmpty(dbContext, logger);
+                    await DbInitializer.InitializeIfEmptyAsync(dbContext, logger);
                 }
             }
 
