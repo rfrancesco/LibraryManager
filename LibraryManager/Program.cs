@@ -33,6 +33,12 @@ namespace LibraryManager
                 app.UseSwaggerUI();
             }
 
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseHsts();
+            }
+            app.UseHttpsRedirection();
+
 
 
             BooksEndpoint.Map(app);
