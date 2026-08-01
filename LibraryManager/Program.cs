@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using EntityFramework.Exceptions.Sqlite;
+using EntityFramework.Exceptions.SqlServer;
 
 namespace LibraryManager
 {
@@ -8,7 +8,9 @@ namespace LibraryManager
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlite("Data Source=library.db").UseExceptionProcessor());
+            builder.Services.AddDbContext<AppDbContext>(opt =>
+                opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+                .UseExceptionProcessor());
             builder.Services.AddScoped<IBookService, BookService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ILoanService, LoanService>();
@@ -20,6 +22,15 @@ namespace LibraryManager
 
             app.UseExceptionHandler();
             app.UseStatusCodePages();
+
+            // Apply migrations 
+            // Is unsafe in Production if multiple instances are run - for now it's ok
+            if (!app.Environment.IsProduction())
+            {
+                using var scope = app.Services.CreateScope();
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                dbContext.Database.Migrate();
+            }
 
             // Data seeding
             // Demo mode: automatic

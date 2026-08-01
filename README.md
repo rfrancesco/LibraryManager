@@ -1,18 +1,19 @@
 # LibraryManager
 
-A backend for managing a small book library, built with ASP.NET Core (Minimal APIs), Entity Framework Core, and SQLite.
+A backend for managing a small book library, built with ASP.NET Core (Minimal APIs), Entity Framework Core, and SQL Server.
 
 Personal project for getting hands-on experience with C#/.NET. The domain is intentionally simple: the parts worth looking at are the service layer, the EF Core queries, and the loan constraint enforced in the database.
+
+## Run the program!
+The program can be easily run locally using the Dockerfile. 
 
 ## Tech stack
 
 - **ASP.NET Core Minimal APIs** — REST endpoints
-- **Entity Framework Core** with the SQLite provider
+- **Entity Framework Core** with SQL Server
 - **Swashbuckle / Swagger** — OpenAPI docs at `/swagger` in development
-- **EntityFrameworkCore.Exceptions** for provider-agnostic constraint-violation exceptions, so the service layer doesn't hardcode SQLite error codes
-- `ProblemDetails` + `UseExceptionHandler` for anything unhandled. Expected failures are not exceptions: `CreateLoanAsync` returns a status enum, because "book already on loan" is an outcome, not a bug.
-
-Provider-specific details are isolated to `AppDbContext` configuration, so swapping to SQL Server or PostgreSQL means touching the DbContext and regenerating migrations, not the service or endpoint layers.
+- **EntityFrameworkCore.Exceptions** for provider-agnostic constraint-violation exceptions
+- **Docker/Podman + Docker Compose** — containerized build; Compose orchestrates the app alongside a SQL Server container for local development. Dockerfile executes the test suite before deployment.
 
 ## Architecture
 
@@ -29,8 +30,13 @@ Provider-specific details are isolated to `AppDbContext` configuration, so swapp
 
 A book can never be on loan to two people at once. This is enforced at the database level with a filtered unique index:
 
-```sql
-CREATE UNIQUE INDEX IX_Loans_ActiveBookLoan ON Loans (BookId) WHERE ReturnDate IS NULL;
+```csharp
+migrationBuilder.CreateIndex(
+    name: "IX_Loans_BookId",
+    table: "Loans",
+    column: "BookId",
+    unique: true,
+    filter: "ReturnDate IS NULL");
 ```
 
 The application layer also checks upfront (`HasActiveLoanAsync`) and returns `409 Conflict` if the book is already out. That check exists for a clean error message, not for correctness: if two requests get past it simultaneously, the insert violates the index, and the resulting `UniqueConstraintException` is caught and mapped to the same `409`.
@@ -99,7 +105,7 @@ POST  /loans/{id}/return    Mark a loan as returned
 
 Rough priority order:
 
-- [ ] Unit tests on the services (In progress)
+- [ ] Unit tests on the services (In progress + migration from SQLite pending)
 - [ ] Integration tests over HTTP (`WebApplicationFactory`) for routing and status codes
 - [ ] CI: build and test on push
 - [ ] Authentication and authorization, splitting access between:
@@ -110,40 +116,34 @@ Rough priority order:
 - [ ] `PUT`/`PATCH`/`DELETE` endpoints for books and users
 - [ ] Move `/users/{id}/books` off its direct `AppDbContext` query and into `LoanService`
 
-## Running locally
-
+## Run locally
+### Running with Docker Compose
+ 
 ```bash
-# Requires the dotnet-ef tool, if not already installed
-dotnet tool install --global dotnet-ef
-
-# Create and apply the initial migration
-cd LibraryManager
-dotnet ef migrations add InitialCreate
-dotnet ef database update
-
-dotnet run
+cp .env.example .env   # adjust DB_PASSWORD if you'd like
+docker compose up --build
 ```
+ 
+Listens on `http://localhost:5010`; Swagger UI is at `/swagger`. Migrations are applied automatically at startup (`dbContext.Database.Migrate()`).
 
-Listens on `http://localhost:5010`; Swagger UI is at `/swagger` in the Development environment. On startup in development, `DbInitializer` seeds `library.db` with a few dozen books, five users and a handful of loans if the tables are empty. It's gated behind `IsDevelopment()` in `Program.cs`, so it never runs elsewhere. The seed data is illustrative, not realistic.
+Environment variables:
+- `SEED_DEMO_DATA=true`: Seeds initial mock data (see below)
+- `ASPNETCORE_ENVIRONMENT`: `Development`, `Demo` or `Production`.
 
+Mock data is only seeded if
+- `SEED_DEMO_DATA=true`
+- __AND__ the environment is either `Development` or `Demo` (only `GET` requests are allowed)
+- __AND__ the database is empty.
+
+Swagger UI is activated if
+- The environment is `Development`
+- __OR__ the environment is `Demo`.
+ 
+By default the SQL Server data directory is **not** persisted — `docker compose down` followed by `up` starts from a clean database each time. 
+ 
 ### Running tests
-You can run the test suite from the repo root with
+Automatically run by Dockerfile in build process:
 
 ```bash
 dotnet test
 ```
-
-### Running on Docker/Podman
-```
-docker build -t librarymanager .
-docker run -p 5010:5010 librarymanager
-```
-or equivalently, using `podman`,
-```
-podman build -t librarymanager .
-podman run -p 5010:5010 librarymanager
-```
-
-The Dockerfile builds the SQLite database (including migrations) from scratch at the build step. The database is ephemeral (changes are lost when the container terminates), which is ok for demo/development purposes but not for production.
-
-The Dockerfile automatically runs the test suite before continuing with the build. 

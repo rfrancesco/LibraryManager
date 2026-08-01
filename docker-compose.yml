@@ -1,0 +1,19 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${DB_PASSWORD}"
+    ports:
+      - "1433:1433"
+
+  app:
+    build: .
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      SEED_DEMO_DATA: true
+      ConnectionStrings__DefaultConnection: "Server=db;Database=LibraryManager;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True"
+    ports:
+      - "5010:5010"
+    depends_on:
+      - db

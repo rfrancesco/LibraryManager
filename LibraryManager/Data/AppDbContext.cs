@@ -16,7 +16,6 @@ namespace LibraryManager
             modelBuilder.Entity<Loan>()
                 .HasIndex(l => l.BookId)
                 .IsUnique()
-                // Next line has Sqlite syntax, needs to be changed for SQL Server or Postgres
                 .HasFilter("ReturnDate IS NULL");
         }
     }

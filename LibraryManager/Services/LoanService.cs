@@ -66,6 +66,9 @@ namespace LibraryManager
                 return new CreateLoanResult(CreateLoanStatusResult.BookAlreadyLoaned, null);
             }
 
+            await _db.Entry(loan).Reference(l => l.Book).LoadAsync();
+            await _db.Entry(loan).Reference(l => l.User).LoadAsync();
+
             return new CreateLoanResult(CreateLoanStatusResult.Success,
                                         new LoanDetailsDto(loan.LoanId,
                                             new BookSummaryDto(loan.Book.BookId, loan.Book.Title, loan.Book.Author),
@@ -123,6 +126,9 @@ namespace LibraryManager
 
             loan.ReturnDate = DateTime.UtcNow;
             await _db.SaveChangesAsync();
+
+            await _db.Entry(loan).Reference(l => l.Book).LoadAsync();
+            await _db.Entry(loan).Reference(l => l.User).LoadAsync();
 
             return new LoanDetailsDto(loan.LoanId,
                         new BookSummaryDto(loan.Book.BookId, loan.Book.Title, loan.Book.Author),
