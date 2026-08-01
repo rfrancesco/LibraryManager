@@ -106,7 +106,7 @@ POST  /loans/{id}/return    Mark a loan as returned
 
 Rough priority order:
 
-- [ ] Extend integration tests on all services (for now, only BookService is tested)
+- [ ] Extend integration tests on all services (test suite coverage is not complete)
 - [ ] Integration tests over HTTP (`WebApplicationFactory`) for routing and status codes
 - [ ] CI: build and test on push
 - [ ] Authentication and authorization, splitting access between:
