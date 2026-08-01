@@ -1,6 +1,7 @@
 using LibraryManager;
 using Testcontainers.MsSql;
 using Microsoft.EntityFrameworkCore;
+using EntityFramework.Exceptions.SqlServer;
 
 [CollectionDefinition("SqlServer collection")]
 public class SqlServerCollection : ICollectionFixture<SqlServerFixture>
@@ -16,6 +17,7 @@ public class SqlServerFixture : IAsyncLifetime
 
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseSqlServer(_container.GetConnectionString())
+            .UseExceptionProcessor()
             .Options;
 
         var context = new AppDbContext(options);
@@ -28,6 +30,7 @@ public class SqlServerFixture : IAsyncLifetime
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseSqlServer(_container.GetConnectionString())
+            .UseExceptionProcessor()
             .Options;
 
         return new AppDbContext(options);
