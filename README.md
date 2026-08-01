@@ -14,6 +14,7 @@ The program can be easily run locally using the Dockerfile.
 - **Swashbuckle / Swagger** — OpenAPI docs at `/swagger` in development
 - **EntityFrameworkCore.Exceptions** for provider-agnostic constraint-violation exceptions
 - **Docker/Podman + Docker Compose** — containerized build; Compose orchestrates the app alongside a SQL Server container for local development. Dockerfile executes the test suite before deployment.
+- **Testcontainers** for integration tests — spins up a real SQL Server container for the test suite.
 
 ## Architecture
 
@@ -105,7 +106,7 @@ POST  /loans/{id}/return    Mark a loan as returned
 
 Rough priority order:
 
-- [ ] Unit tests on the services (In progress + migration from SQLite pending)
+- [ ] Extend integration tests on all services (for now, only BookService is tested)
 - [ ] Integration tests over HTTP (`WebApplicationFactory`) for routing and status codes
 - [ ] CI: build and test on push
 - [ ] Authentication and authorization, splitting access between:
