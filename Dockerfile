@@ -21,7 +21,6 @@ FROM test AS publish
 RUN dotnet tool install --global dotnet-ef 
 ENV PATH="${PATH}:/root/.dotnet/tools"
 WORKDIR /src/LibraryManager
-RUN dotnet ef migrations add InitialCreate
 RUN dotnet publish -c Release -o /app/publish
 
 # Create final container for deployment

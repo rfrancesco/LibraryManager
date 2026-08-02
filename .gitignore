@@ -1,5 +1,4 @@
 bin/
 obj/
-Migrations/
 library.db
 .env
