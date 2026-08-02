@@ -2,10 +2,9 @@
 
 A backend for managing a small book library, built with ASP.NET Core (Minimal APIs), Entity Framework Core, and SQL Server.
 
-Personal project for getting hands-on experience with C#/.NET. The domain is intentionally simple: the parts worth looking at are the service layer, the EF Core queries, and the loan constraint enforced in the database.
+Personal project for getting hands-on experience with C#/.NET. The domain is intentionally simple: a backend for a library, managing and searching a collection of books, users and loans. Loans can be created and returned, and there cannot be two open loans for the same book (enforced at the database level, see Data model below).
 
-## Run the program!
-The program can be easily run locally using the Dockerfile. 
+The program can be run locally with Docker Compose (see end of README).
 
 ## Tech stack
 
@@ -13,8 +12,9 @@ The program can be easily run locally using the Dockerfile.
 - **Entity Framework Core** with SQL Server
 - **Swashbuckle / Swagger** — OpenAPI docs at `/swagger` in development
 - **EntityFrameworkCore.Exceptions** for provider-agnostic constraint-violation exceptions
-- **Docker/Podman + Docker Compose** — containerized build; Compose orchestrates the app alongside a SQL Server container for local development. Dockerfile executes the test suite before deployment.
+- **Docker + Docker Compose** — containerized build; Compose orchestrates the app alongside a SQL Server container for local development.
 - **Testcontainers** for integration tests — spins up a real SQL Server container for the test suite.
+- **GitHub Actions** for CI — build and test on push.
 
 ## Architecture
 
@@ -109,7 +109,8 @@ Rough priority order:
 - [x] Add integration test suite against SQL Server (with Testcontainers)
 - [ ] Improve test suite coverage
 - [ ] Integration tests over HTTP (`WebApplicationFactory`) for routing and status codes
-- [ ] CI: build and test on push
+- [x] CI: build and test on push
+- [ ] CD: deploy to Azure on push if all tests pass
 - [ ] Authentication and authorization, splitting access between:
   - library staff (full read/write)
   - public (read-only book search, `available` flag only, no user data)
@@ -144,7 +145,7 @@ Swagger UI is activated if
 By default the SQL Server data directory is **not** persisted — `docker compose down` followed by `up` starts from a clean database each time. 
  
 ### Running tests
-Automatically run by Dockerfile in build process:
+Tests can be run by a user with access to Docker with
 
 ```bash
 dotnet test

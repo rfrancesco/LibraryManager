@@ -11,15 +11,8 @@ WORKDIR /src
 COPY . .
 RUN dotnet restore
 
-# Create test environment
-FROM build AS test
-RUN dotnet test --no-restore
-
 # Build published target
-# FROM test so that tests are required before publish step
-FROM test AS publish    
-RUN dotnet tool install --global dotnet-ef 
-ENV PATH="${PATH}:/root/.dotnet/tools"
+FROM build AS publish    
 WORKDIR /src/LibraryManager
 RUN dotnet publish -c Release -o /app/publish
 
