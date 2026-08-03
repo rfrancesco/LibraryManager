@@ -6,6 +6,11 @@ name: .NET
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'LICENSE'
+      - '.env.example'
   pull_request:
     branches: [ "main" ]
 
