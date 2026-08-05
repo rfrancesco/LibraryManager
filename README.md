@@ -12,14 +12,14 @@ The app is already **deployed on Azure** on App Service (Free tier, Windows): [L
 
 ## Tech stack
 
-- **ASP.NET Core Minimal APIs** — REST endpoints
+- **ASP.NET Core Minimal APIs**: REST endpoints
 - **Entity Framework Core** with SQL Server or SQLite
-- **Swashbuckle / Swagger** — OpenAPI docs at `/swagger` in development
+- **Swashbuckle / Swagger**: OpenAPI docs at `/swagger` in development
 - **EntityFrameworkCore.Exceptions** for provider-agnostic constraint-violation exceptions
-- **Docker + Docker Compose** — containerized build; Compose orchestrates the app alongside a SQL Server container for local development.
-- **Testcontainers** for integration tests — spins up a real SQL Server container for the test suite.
-- **GitHub Actions** for CI — build and test on push.
-- **Bicep** — Infrastructure as Code for the Azure deployment
+- **Docker + Docker Compose**: containerized build; Compose orchestrates the app alongside a SQL Server container for local development.
+- **Testcontainers** for integration tests: spins up a real SQL Server container for the test suite.
+- **GitHub Actions** for CI: build and test on push.
+- **Bicep**: Infrastructure as Code for the Azure deployment
 
 ## Architecture
 
@@ -32,22 +32,23 @@ The app is already **deployed on Azure** on App Service (Free tier, Windows): [L
 
 The solution is split across five projects to support two database providers with independent, provider-specific migrations:
 
-- `LibraryManager` — the web app (endpoints, services, `Program.cs`)
-- `LibraryManager.Data` — `AppDbContext` and entities, shared by the app and both migrations projects
+- `LibraryManager`: the web app (endpoints, services, `Program.cs`)
+- `LibraryManager.Data`: `AppDbContext` and entities, shared by the app and both migrations projects
 - `LibraryManager.Migrations.SqlServer` / `LibraryManager.Migrations.Sqlite` — provider-specific EF Core migrations, each with its own `IDesignTimeDbContextFactory`
-- `LibraryManager.Tests` — xUnit test suite, run against both providers (see Testing below)
+- `LibraryManager.Tests`: xUnit test suite, run against both providers (see Testing below)
 
 Migrations are provider-specific and must be generated separately for each:
-\```bash
+
+```bash
 dotnet ef migrations add <Name> -p LibraryManager.Migrations.SqlServer -s LibraryManager.Migrations.SqlServer
 dotnet ef migrations add <Name> -p LibraryManager.Migrations.Sqlite -s LibraryManager.Migrations.Sqlite
-\```
+```
 
 ## Data model
 
-- `Book` — `BookId`, `Title`, `Author`, `Genre`
-- `User` — `UserId`, `Name`
-- `Loan` — `LoanId`, `BookId`, `UserId`, `LoanDate`, `ExpiryDate`, `ReturnDate` (nullable; `null` means the loan is active)
+- `Book`: `BookId`, `Title`, `Author`, `Genre`
+- `User`: `UserId`, `Name`
+- `Loan`: `LoanId`, `BookId`, `UserId`, `LoanDate`, `ExpiryDate`, `ReturnDate` (nullable; `null` means the loan is active)
 
 A book can never be on loan to two people at once. This is enforced at the database level with a filtered unique index:
 
@@ -73,9 +74,9 @@ The integration test suite runs the same tests against both providers to catch p
 
 Test classes are generic over the fixture `IDatabaseFixture`, so each test is written once and runs against both providers via `[Collection]`-scoped fixtures.
 
-\```bash
+```bash
 dotnet test   # requires Docker access for the SQL Server fixture
-\```
+```
 
 ## API overview
 
@@ -144,6 +145,8 @@ Rough priority order:
 - [ ] Improve test suite coverage
 - [ ] Integration tests over HTTP (`WebApplicationFactory`) for routing and status codes
 - [x] CI: build and test on push
+- [x] Infrastructure as Code with Bicep for demo deployment
+- [x] Deploy demo to Azure
 - [ ] CD: deploy to Azure on push if all tests pass
 - [ ] Authentication and authorization, splitting access between:
   - library staff (full read/write)
@@ -184,7 +187,9 @@ By default the SQL Server data directory is **not** persisted — `docker compos
 ### Running with SQLite (no Docker required)
 
 Set `Database:Provider` to `Sqlite` (default) and run directly:
-\```bash
+
+```bash
 dotnet run --project LibraryManager
-\```
+```
+
 Uses a local `library.db` file, migrated automatically at startup. 
