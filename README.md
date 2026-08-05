@@ -6,6 +6,10 @@ Personal project for getting hands-on experience with C#/.NET. The domain is int
 
 The program can be run locally with Docker Compose (with SQL Server), or without Docker using SQLite (see end of README).
 
+## Deployment
+
+The app is already **deployed on Azure** on App Service (Free tier, Windows): [Link to Swagger UI](https://librarymanager-demo-4cbvihxlabsru.azurewebsites.net/swagger/index.html). Please note that the API is in read-only mode (non-GET requests are disabled by a middleware) to prevent potential bots from POSTing data. You can find the IaC in `infra/demo.bicep`. The demo uses SQLite for simplicity.
+
 ## Tech stack
 
 - **ASP.NET Core Minimal APIs** — REST endpoints
@@ -15,6 +19,7 @@ The program can be run locally with Docker Compose (with SQL Server), or without
 - **Docker + Docker Compose** — containerized build; Compose orchestrates the app alongside a SQL Server container for local development.
 - **Testcontainers** for integration tests — spins up a real SQL Server container for the test suite.
 - **GitHub Actions** for CI — build and test on push.
+- **Bicep** — Infrastructure as Code for the Azure deployment
 
 ## Architecture
 
@@ -153,7 +158,6 @@ Rough priority order:
 Two options: SQL Server via Docker Compose (closer to production), or SQLite directly (no Docker needed).
 
 ### Running with SQL Server and Docker Compose
-...
  
 ```bash
 cp .env.example .env   # adjust DB_PASSWORD if you'd like
