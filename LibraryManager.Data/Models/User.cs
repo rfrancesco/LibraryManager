@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace LibraryManager
+namespace LibraryManager.Data
 {
     public class User
     {

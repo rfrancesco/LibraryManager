@@ -9,6 +9,9 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="EntityFrameworkCore.Exceptions.Sqlite" Version="10.0.1" />
+    <PackageReference Include="EntityFrameworkCore.Exceptions.SqlServer" Version="10.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.10" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="Testcontainers.MsSql" Version="4.13.0" />
@@ -22,6 +25,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LibraryManager\LibraryManager.csproj" />
+    <ProjectReference Include="..\LibraryManager.Data\LibraryManager.Data.csproj" />
+    <ProjectReference Include="..\LibraryManager.Migrations.SqlServer\LibraryManager.Migrations.SqlServer.csproj" />
+    <ProjectReference Include="..\LibraryManager.Migrations.Sqlite\LibraryManager.Migrations.Sqlite.csproj" />
   </ItemGroup>
 
 </Project>

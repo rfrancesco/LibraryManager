@@ -4,6 +4,7 @@
 */
 
 using Microsoft.EntityFrameworkCore;
+using LibraryManager.Data;
 
 namespace LibraryManager
 {

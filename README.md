@@ -1,15 +1,15 @@
 # LibraryManager
 
-A backend for managing a small book library, built with ASP.NET Core (Minimal APIs), Entity Framework Core, and SQL Server.
+A backend for managing a small book library, built with ASP.NET Core (Minimal APIs), Entity Framework Core, and SQL Server/SQLite.
 
 Personal project for getting hands-on experience with C#/.NET. The domain is intentionally simple: a backend for a library, managing and searching a collection of books, users and loans. Loans can be created and returned, and there cannot be two open loans for the same book (enforced at the database level, see Data model below).
 
-The program can be run locally with Docker Compose (see end of README).
+The program can be run locally with Docker Compose (with SQL Server), or without Docker using SQLite (see end of README).
 
 ## Tech stack
 
 - **ASP.NET Core Minimal APIs** — REST endpoints
-- **Entity Framework Core** with SQL Server
+- **Entity Framework Core** with SQL Server or SQLite
 - **Swashbuckle / Swagger** — OpenAPI docs at `/swagger` in development
 - **EntityFrameworkCore.Exceptions** for provider-agnostic constraint-violation exceptions
 - **Docker + Docker Compose** — containerized build; Compose orchestrates the app alongside a SQL Server container for local development.
@@ -22,6 +22,21 @@ The program can be run locally with Docker Compose (see end of README).
 - **Services** (`BookService`, `UserService`, `LoanService`) own all business logic and EF Core queries. Each sits behind an interface and is registered `Scoped` in DI.
 - **DTOs** describe data crossing the HTTP boundary. EF Core entities (`Book`, `User`, `Loan`) are never exposed directly.
 - `BookService` handles books, `UserService` handles users. A loan is a relationship between the two, so it sits a layer above both: any query touching loans belongs in `LoanService`, including ones that return `Book` rows, like "books currently on loan to user X". (`/users/{id}/books` is the one place that doesn't follow this yet.)
+
+### Project structure
+
+The solution is split across five projects to support two database providers with independent, provider-specific migrations:
+
+- `LibraryManager` — the web app (endpoints, services, `Program.cs`)
+- `LibraryManager.Data` — `AppDbContext` and entities, shared by the app and both migrations projects
+- `LibraryManager.Migrations.SqlServer` / `LibraryManager.Migrations.Sqlite` — provider-specific EF Core migrations, each with its own `IDesignTimeDbContextFactory`
+- `LibraryManager.Tests` — xUnit test suite, run against both providers (see Testing below)
+
+Migrations are provider-specific and must be generated separately for each:
+\```bash
+dotnet ef migrations add <Name> -p LibraryManager.Migrations.SqlServer -s LibraryManager.Migrations.SqlServer
+dotnet ef migrations add <Name> -p LibraryManager.Migrations.Sqlite -s LibraryManager.Migrations.Sqlite
+\```
 
 ## Data model
 
@@ -43,6 +58,19 @@ migrationBuilder.CreateIndex(
 The application layer also checks upfront (`HasActiveLoanAsync`) and returns `409 Conflict` if the book is already out. That check exists for a clean error message, not for correctness: if two requests get past it simultaneously, the insert violates the index, and the resulting `UniqueConstraintException` is caught and mapped to the same `409`.
 
 Loans are never deleted. Returning one sets `ReturnDate`, so history stays queryable through `/loans`.
+
+## Testing
+
+The integration test suite runs the same tests against both providers to catch provider-specific behavior differences:
+
+- **SQL Server**: via Testcontainers, spinning up a real container per test run, migrated with `Database.Migrate()`
+- **SQLite**: in-memory (`:memory:`), migrated the same way
+
+Test classes are generic over the fixture `IDatabaseFixture`, so each test is written once and runs against both providers via `[Collection]`-scoped fixtures.
+
+\```bash
+dotnet test   # requires Docker access for the SQL Server fixture
+\```
 
 ## API overview
 
@@ -107,6 +135,7 @@ POST  /loans/{id}/return    Mark a loan as returned
 Rough priority order:
 
 - [x] Add integration test suite against SQL Server (with Testcontainers)
+- [x] Support both SQL Server (production level) and SQLite (easier to deploy for demo purposes)
 - [ ] Improve test suite coverage
 - [ ] Integration tests over HTTP (`WebApplicationFactory`) for routing and status codes
 - [x] CI: build and test on push
@@ -120,7 +149,11 @@ Rough priority order:
 - [ ] Move `/users/{id}/books` off its direct `AppDbContext` query and into `LoanService`
 
 ## Run locally
-### Running with Docker Compose
+
+Two options: SQL Server via Docker Compose (closer to production), or SQLite directly (no Docker needed).
+
+### Running with SQL Server and Docker Compose
+...
  
 ```bash
 cp .env.example .env   # adjust DB_PASSWORD if you'd like
@@ -143,10 +176,11 @@ Swagger UI is activated if
 - __OR__ the environment is `Demo`.
  
 By default the SQL Server data directory is **not** persisted — `docker compose down` followed by `up` starts from a clean database each time. 
- 
-### Running tests
-Tests can be run by a user with access to Docker with
 
-```bash
-dotnet test
-```
+### Running with SQLite (no Docker required)
+
+Set `Database:Provider` to `Sqlite` (default) and run directly:
+\```bash
+dotnet run --project LibraryManager
+\```
+Uses a local `library.db` file, migrated automatically at startup. 

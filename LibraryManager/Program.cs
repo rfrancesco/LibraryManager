@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using EntityFramework.Exceptions.SqlServer;
+using LibraryManager.Data;
 
 namespace LibraryManager
 {
@@ -8,9 +9,27 @@ namespace LibraryManager
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            var dbProvider = builder.Configuration["Database:Provider"] ?? "Sqlite";
             builder.Services.AddDbContext<AppDbContext>(opt =>
-                opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-                .UseExceptionProcessor());
+            {
+                switch (dbProvider)
+                {
+                    case "Sqlite":
+                        opt.UseSqlite("Data Source=library.db",
+                        b => b.MigrationsAssembly("LibraryManager.Migrations.Sqlite"))
+                        .UseExceptionProcessor();
+                        break;
+                    case "SqlServer":
+                        opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+                        b => b.MigrationsAssembly("LibraryManager.Migrations.SqlServer"))
+                        .UseExceptionProcessor();
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Database provider can be either SqlServer or Sqlite.");
+                }
+            });
+
             builder.Services.AddScoped<IBookService, BookService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ILoanService, LoanService>();

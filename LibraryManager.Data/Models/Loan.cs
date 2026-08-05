@@ -1,4 +1,4 @@
-namespace LibraryManager
+namespace LibraryManager.Data
 {
     public class Loan
     {

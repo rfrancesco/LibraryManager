@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace LibraryManager
+namespace LibraryManager.Data
 {
     public class AppDbContext : DbContext
     {
