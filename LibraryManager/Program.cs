@@ -16,7 +16,7 @@ namespace LibraryManager
                 switch (dbProvider)
                 {
                     case "Sqlite":
-                        opt.UseSqlite("Data Source=library.db",
+                        opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=library.db",
                         b => b.MigrationsAssembly("LibraryManager.Migrations.Sqlite"))
                         .UseExceptionProcessor();
                         break;
