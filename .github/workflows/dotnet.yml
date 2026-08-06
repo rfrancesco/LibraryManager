@@ -14,20 +14,56 @@ on:
   pull_request:
     branches: [ "main" ]
 
-jobs:
-  build:
+permissions:
+  id-token: write   # for OIDC
+  contents: read
 
+jobs:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v7
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v6
-      with:
-        dotnet-version: 10.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      - uses: actions/checkout@v7
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Provision infrastructure
+        id: infra
+        run: |
+          WEBAPP_NAME=$(az deployment group create \
+            --resource-group LibraryManager \
+            --template-file infra/demo.bicep \
+            --query properties.outputs.webAppName.value \
+            -o tsv)
+          echo "webapp_name=$WEBAPP_NAME" >> "$GITHUB_OUTPUT"
+
+      - run: dotnet publish LibraryManager -c Release -o ./publish
+
+      - uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ steps.infra.outputs.webapp_name }}
+          package: ./publish
+
+
+
