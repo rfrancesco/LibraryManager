@@ -8,7 +8,11 @@ The program can be run locally with Docker Compose (with SQL Server), or without
 
 ## Deployment
 
-The app is already **deployed on Azure** on App Service (Free tier, Windows): [Link to Swagger UI](https://librarymanager-demo-4cbvihxlabsru.azurewebsites.net/swagger/index.html). Please note that the API is in read-only mode (non-GET requests are disabled by a middleware) to prevent potential bots from POSTing data. You can find the IaC in `infra/demo.bicep`. The demo uses SQLite for simplicity.
+The app is **deployed on Azure** on App Service (Free tier, Windows): [Link to Swagger UI](https://librarymanager-demo-4cbvihxlabsru.azurewebsites.net/swagger/index.html). Please note that the API is in read-only mode (non-GET requests are disabled by a middleware) to prevent potential bots from POSTing data. 
+
+Infrastructure is defined in `infra/demo.bicep`, and deployment is automated via GitHub Actions: every push to `main` runs the test suite and, if it passes, provisions the infrastructure and publishes the app.
+
+The demo uses SQLite for simplicity. 
 
 ## Tech stack
 
@@ -18,7 +22,7 @@ The app is already **deployed on Azure** on App Service (Free tier, Windows): [L
 - **EntityFrameworkCore.Exceptions** for provider-agnostic constraint-violation exceptions
 - **Docker + Docker Compose**: containerized build; Compose orchestrates the app alongside a SQL Server container for local development.
 - **Testcontainers** for integration tests: spins up a real SQL Server container for the test suite.
-- **GitHub Actions** for CI: build and test on push.
+- **GitHub Actions** for CI/CD: build and test on push, then deploy to Azure.
 - **Bicep**: Infrastructure as Code for the Azure deployment
 
 ## Architecture
@@ -147,7 +151,7 @@ Rough priority order:
 - [x] CI: build and test on push
 - [x] Infrastructure as Code with Bicep for demo deployment
 - [x] Deploy demo to Azure
-- [ ] CD: deploy to Azure on push if all tests pass
+- [x] CD: deploy to Azure on push if all tests pass
 - [ ] Authentication and authorization, splitting access between:
   - library staff (full read/write)
   - public (read-only book search, `available` flag only, no user data)
