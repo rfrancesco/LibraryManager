@@ -27,7 +27,8 @@ namespace LibraryManager
                 var result = await bookService.CreateBookAsync(dto);
                 return TypedResults.Created($"/books/{result.BookId}", result);
             })
-            .WithSummary("Add a book to the library");
+            .WithSummary("Add a book to the library")
+            .WithDescription("Creates a new book entry in the catalogue and returns its details, including the generated BookId");
         }
     }
 }
